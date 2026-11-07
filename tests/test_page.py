@@ -60,6 +60,11 @@ class LandingAcceptance(unittest.TestCase):
         self.assertGreaterEqual(sum(tag == 'details' for tag, _ in self.parser.tags), 6)
         self.assertIn('prefers-reduced-motion', self.html)
         self.assertIn(':focus-visible', self.html)
+    def test_production_metadata(self):
+        canonical = [a.get('href') for tag, a in self.parser.tags if tag == 'link' and a.get('rel') == 'canonical']
+        self.assertEqual(canonical, ['https://lumivelle-topaz.vercel.app/'])
+        og = [a.get('content') for tag, a in self.parser.tags if tag == 'meta' and a.get('property') == 'og:image']
+        self.assertEqual(og, ['https://lumivelle-topaz.vercel.app/assets/og-lumivelle.webp'])
     def test_subscription_disclosure(self):
         for term in ['subscription', '28 days', 'Wellness Club', 'cancel']:
             self.assertIn(term.lower(), self.html.lower())
