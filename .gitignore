@@ -1,0 +1,12 @@
+.vercel/
+.env
+.env.*
+node_modules/
+__pycache__/
+*.pyc
+Affiliate Brief/
+private-notes/
+*.private.md
+dist/
+PARENT-UPDATES.md
+
