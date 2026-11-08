@@ -142,15 +142,13 @@ body.is-stripped .vsl-video {
     box-shadow 0.5s ease;
 }
 
-/* The Vimeo iframe keeps the video's 540x666 ratio at any width the box
-   gives it (the kit's player sizing came from a smartplayer element). */
-.vsl-video__box iframe {
+/* The Wistia player sizes itself from its aspect attribute. Its
+   not(:defined) placeholder carries its own padding-top, so no aspect-ratio
+   is set here (that would double the height). */
+.vsl-video__box wistia-player {
   display: block;
   width: 100%;
   max-width: 100%;
-  height: auto;
-  aspect-ratio: 540 / 666;
-  border: 0;
 }
 
 /* Stage: as wide as the screen height allows, so the frame never loses its

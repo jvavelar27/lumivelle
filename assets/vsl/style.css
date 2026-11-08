@@ -16,8 +16,8 @@
   --font-display: "Inter Tight", Inter, "Helvetica Neue", Arial, sans-serif;
   --font-body: Inter, "Helvetica Neue", Arial, sans-serif;
 
-  /* The Vimeo video is 540×666. */
-  --vsl-player-ratio: 0.8108;
+  /* The Wistia video aspect (width / height). */
+  --vsl-player-ratio: 0.8126410835214447;
 
   /* --rest-reserve is this page's own: the screen height the headline takes
      on landing, so the whole player fits under it. On stage the headline

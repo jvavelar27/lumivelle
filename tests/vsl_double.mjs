@@ -1,6 +1,8 @@
-// TEST DOUBLE ONLY. A minimal browser + Vimeo player.js boundary so the real
+// TEST DOUBLE ONLY. A minimal browser + <wistia-player> boundary so the real
 // assets/vsl/vsl-player.js can run in Node. It does not simulate or claim any
-// real Vimeo behaviour: events are emitted only when a test calls emit().
+// real Wistia behaviour: events fire only when a test calls emit(), and every
+// property (currentTime, duration, muted...) is set by the test. Real playback
+// is verified separately in a browser.
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
@@ -44,38 +46,28 @@ class El {
   scrollIntoView() {}
 }
 
-class FakePlayer {
-  static instances = [];
-  constructor(el) {
-    if (FakePlayer.throwOnCreate) throw new Error('double: constructor failure');
-    this.el = el;
-    this.handlers = {};
-    this.time = FakePlayer.startTime ?? 0;
+// Stands in for <wistia-player>. Before "definition" it only accepts listeners,
+// like a not-yet-upgraded custom element; the test decides when it is usable.
+class FakeWistia extends El {
+  constructor() {
+    super('wistia-player', { 'media-id': 'dr4rq15xr1' });
+    this.currentTime = 0;
+    this.duration = 0;
+    this.readyState = 0;
+    this.paused = true;
     this.muted = true;
     this.volume = 1;
-    this.readyMode = FakePlayer.readyMode || 'resolve';
-    FakePlayer.instances.push(this);
   }
-  on(e, f) { (this.handlers[e] ||= []).push(f); }
-  ready() {
-    if (this.readyMode === 'reject') return Promise.reject(new Error('double: not ready'));
-    if (this.readyMode === 'never') return new Promise(() => {});
-    return Promise.resolve();
-  }
-  getCurrentTime() { return Promise.resolve(this.time); }
-  getMuted() { return FakePlayer.mutedFails ? Promise.reject(new Error('x')) : Promise.resolve(this.muted); }
-  getVolume() { return Promise.resolve(this.volume); }
-  emit(e, data) { (this.handlers[e] || []).forEach((f) => f(data)); }
+  emit(type, detail) { (this.listeners[type] || []).forEach((f) => f({ type, detail })); }
+  // test helper: the component finishes defining and metadata is initialised
+  makeReady(time = 0) { this.duration = 3908.13; this.readyState = 4; this.currentTime = time; this.play = () => {}; this.pause = () => {}; }
 }
 
-export function loadPage({ vimeo = true, storage = 'ok', store = new Map(), search = '', startTime, readyMode, throwOnCreate = false, mutedFails = false } = {}) {
-  FakePlayer.instances = [];
-  FakePlayer.startTime = startTime;
-  FakePlayer.readyMode = readyMode;
-  FakePlayer.throwOnCreate = throwOnCreate;
-  FakePlayer.mutedFails = mutedFails;
-  const video = new El('div', { id: 'video', 'data-vdelay': '2834', 'data-video-id': '1244806219', 'data-stage': '' });
-  const iframe = new El('iframe');
+// defined: 'resolve' | 'late' | 'never' | 'reject' | 'missing' (no customElements at all)
+export function loadPage({ defined = 'resolve', alreadyReady = false, startTime = 0, noPlayer = false, storage = 'ok', store = new Map(), search = '' } = {}) {
+  const video = new El('div', { id: 'video', 'data-vdelay': '2834', 'data-video-id': 'dr4rq15xr1', 'data-stage': '' });
+  const player = noPlayer ? null : new FakeWistia();
+  if (player && alreadyReady) player.makeReady(startTime);
   const offer = new El('div', { 'data-reveal-scroll': 'fit', 'data-reveal-scroll-delay': '600' });
   const notice = new El('p', { 'data-offer-notice': 'Your order option is now available below the video.' });
   const buy = new El('a', { href: CHECKOUT });
@@ -90,17 +82,26 @@ export function loadPage({ vimeo = true, storage = 'ok', store = new Map(), sear
     body,
     documentElement: new El('html'),
     getElementById: (id) => ({ video, 'player-status': status }[id] || null),
-    querySelector: (s) => (s === 'iframe' || s === '#video iframe' ? iframe : null),
+    querySelector: (s) => (s === 'wistia-player' || s === '#video wistia-player' ? player : null),
     querySelectorAll: (s) => (s === '.esconder' ? [offer] : s === 'a.buylink' || s === '.buylink' ? [buy] : []),
     addEventListener: (t, f) => (docListeners[t] ||= []).push(f),
     removeEventListener() {},
+  };
+  let defineNow = () => {};
+  const customElements = {
+    whenDefined: () => {
+      if (defined === 'never') return new Promise(() => {});
+      if (defined === 'reject') return Promise.reject(new Error('double: definition failed'));
+      if (defined === 'late') return new Promise((resolve) => { defineNow = resolve; });
+      return Promise.resolve();
+    },
   };
   const timers = [];
   let now = 0;
   let id = 0;
   const win = {
     document,
-    Vimeo: vimeo ? { Player: FakePlayer } : undefined,
+    customElements: defined === 'missing' ? undefined : customElements,
     location: { search, href: 'https://lumivelle-topaz.vercel.app/vsl' + search, pathname: '/vsl' },
     innerWidth: 400,
     innerHeight: 800,
@@ -140,8 +141,10 @@ export function loadPage({ vimeo = true, storage = 'ok', store = new Map(), sear
     }
   };
   return {
-    win, document, body, video, offer, notice, buy, status, iframe, store, error, advance, docListeners,
-    player: FakePlayer.instances[0],
+    win, document, body, video, offer, notice, buy, status, store, error, advance, docListeners, player,
+    define: () => defineNow(),
+    // tests move the playhead and then fire the event, as the component would
+    at: (seconds, type = 'time-update', detail) => { player.currentTime = seconds; player.emit(type, detail); },
     revealed: () => offer.style.display === 'block' && body.classList.contains('is-revealed'),
   };
 }

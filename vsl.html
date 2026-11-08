@@ -9,17 +9,26 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href="https://lumivelle-topaz.vercel.app/vsl" />
-    <link rel="preconnect" href="https://player.vimeo.com" />
+    <link rel="preconnect" href="https://fast.wistia.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;900&amp;family=Inter:wght@700&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/vsl/vsl-kit.css" />
-    <link rel="stylesheet" href="/assets/vsl/style.css" />
-    <script src="https://player.vimeo.com/api/player.js" defer></script>
-    <script src="/assets/vsl/vsl-player.js" defer></script>
+    <link rel="stylesheet" href="/assets/vsl/vsl-kit.css?v=wistia1" />
+    <link rel="stylesheet" href="/assets/vsl/style.css?v=wistia1" />
+    <script src="https://fast.wistia.com/player.js" async></script>
+    <script src="https://fast.wistia.com/embed/dr4rq15xr1.js" async type="module"></script>
+    <style>
+      wistia-player[media-id="dr4rq15xr1"]:not(:defined) {
+        background: center / contain no-repeat url("https://fast.wistia.com/embed/medias/dr4rq15xr1/swatch");
+        display: block;
+        filter: blur(5px);
+        padding-top: 123.06%;
+      }
+    </style>
+    <script src="/assets/vsl/vsl-player.js?v=wistia1" defer></script>
   </head>
 
   <body>
@@ -34,17 +43,18 @@
 
     <section class="vsl-video">
       <div class="wrap vsl-video__gutter">
-        <div class="vsl-video__box" id="video" data-vdelay="2834" data-video-id="1244806219" data-stage>
-          <iframe
-            src="https://player.vimeo.com/video/1244806219?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;muted=1"
-            width="540"
-            height="666"
-            frameborder="0"
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-            title="VSL 1 - LumiVelle [47_31]"
-          ></iframe>
+        <div class="vsl-video__box" id="video" data-vdelay="2834" data-video-id="dr4rq15xr1" data-stage>
+          <wistia-player
+            media-id="dr4rq15xr1"
+            aspect="0.8126410835214447"
+            autoplay
+            muted
+            silent-autoplay="allow"
+            play-bar-control="false"
+            play-pause-control="true"
+            volume-control="true"
+            playback-rate-control="false"
+          ></wistia-player>
         </div>
         <p class="vsl-status" id="player-status" role="status" aria-live="polite" hidden></p>
         <noscript><p class="vsl-status">JavaScript is required to unlock the order button on this page. Please enable JavaScript and reload.</p></noscript>

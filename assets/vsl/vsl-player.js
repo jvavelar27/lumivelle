@@ -1,17 +1,20 @@
-/* vsl-player.js — LumiVelle /vsl page behaviour on the Vimeo player.
+/* vsl-player.js — LumiVelle /vsl page behaviour on the Wistia player.
 
-   Adapted from the H&W vsl-pitch.js (stage, pitch reveal, fit lines), with the
-   VTurb player replaced by the official Vimeo player.js SDK:
+   Adapted from the H&W vsl-pitch.js (stage, pitch reveal, fit lines), using the
+   core Wistia Aurora <wistia-player> component (direct properties and events,
+   not the legacy queue-based API):
 
      1. the order button opens when the viewer's PLAYBACK reaches the pitch
         second (data-vdelay on #video = 2834 = 47:14). Never wall-clock time,
-        never a query-string shortcut, never as an error fallback: pausing
-        stops progress toward it, and the button only appears from a
-        timeupdate/seeked payload (or a resume position) read through the SDK.
-     2. stage — real sound on (Vimeo getMuted/getVolume): headline shrinks,
-        player grows and pins until the pitch (Escape steps out)
+        never a query-string shortcut, never as an error or timeout fallback:
+        pausing stops progress toward it, and the button only appears from
+        player.currentTime read on time-update / seeked / api-ready, or from the
+        resume position of an already-ready player. Event payloads are never
+        trusted; no window message listener exists.
+     2. stage — real sound on (player.muted === false and volume > 0): headline
+        shrinks, player grows and pins until the pitch (Escape steps out)
      3. reveal — body.is-revealed, announcement, "fit" scroll
-     4. SDK/iframe failure — a visible status with a reload link, nothing else
+     4. player failure / slow load — a visible status with a reload link only
      5. tracking params carried onto the checkout link without touching hid/affid */
 (function () {
   "use strict";
@@ -23,6 +26,7 @@
   var UNLOCK_SECONDS = video ? Number(video.getAttribute("data-vdelay")) || 0 : 0;
   var VIDEO_ID = video ? video.getAttribute("data-video-id") || "" : "";
   var STORAGE_KEY = "lumivelle-vsl-unlock:" + VIDEO_ID + ":" + UNLOCK_SECONDS;
+  var PLAYER_TAG = "wistia-player";
   var READY_TIMEOUT_MS = 20000;
 
   var lessMotion = function () {
@@ -127,15 +131,10 @@
     document.body.classList.remove("is-stage");
   };
 
-  /* Sound counts as on only when Vimeo says it is: not muted and volume > 0.
-     If the player cannot be asked, the page stays out of the stage. */
+  /* Sound counts as on only when the player says so: muted is exactly false
+     and volume is above zero. Anything else keeps the page out of the stage. */
   var checkSound = function (player) {
-    Promise.all([player.getMuted(), player.getVolume()]).then(
-      function (state) {
-        if (state[0] === false && state[1] > 0) enterStage();
-      },
-      function () {}
-    );
+    if (player.muted === false && typeof player.volume === "number" && player.volume > 0) enterStage();
   };
 
   if (video && video.hasAttribute("data-stage")) {
@@ -192,10 +191,6 @@
     if (UNLOCK_SECONDS > 0 && seconds >= UNLOCK_SECONDS) reveal(false);
   };
 
-  var secondsOf = function (payload) {
-    return payload && typeof payload === "object" && !Array.isArray(payload) ? payload.seconds : undefined;
-  };
-
   /* ---- Player status ------------------------------------------------------ */
 
   var showStatus = function (message) {
@@ -214,50 +209,56 @@
     carryTracking();
     if (readRevealed()) reveal(true);
 
-    var iframe = document.querySelector("#video iframe");
-    if (!iframe) return showStatus("The video could not be found.");
-    if (!window.Vimeo || typeof window.Vimeo.Player !== "function") {
-      return showStatus("The video player could not load.");
-    }
-
-    var player;
-    try {
-      player = new window.Vimeo.Player(iframe);
-    } catch (e) {
-      return showStatus("The video player could not start.");
+    var player = document.querySelector("#video " + PLAYER_TAG);
+    if (!player) return showStatus("The video could not be found.");
+    if (!window.customElements || typeof window.customElements.whenDefined !== "function") {
+      return showStatus("This browser cannot run the video player.");
     }
 
     var ready = false;
-    var timeout = window.setTimeout(function () {
+    var timeout = null;
+
+    var markReady = function () {
+      ready = true;
+      window.clearTimeout(timeout);
+      hideStatus();
+      /* resume: the viewer may already be past the pitch */
+      handlePosition(player.currentTime);
+    };
+
+    /* There is no apiReady flag: a finite duration above zero (and usable
+       methods) means the media metadata is initialised. */
+    var checkReady = function () {
+      if (ready) return;
+      var d = player.duration;
+      if (typeof d === "number" && isFinite(d) && d > 0 && typeof player.play === "function") markReady();
+    };
+
+    /* Listen right away: an element that is not defined yet can already
+       receive listeners, and the component fires them once it is upgraded. */
+    player.addEventListener("api-ready", markReady);
+    player.addEventListener("time-update", function () {
+      handlePosition(player.currentTime);
+    });
+    player.addEventListener("seeked", function () {
+      handlePosition(player.currentTime);
+    });
+    player.addEventListener("play", function () {
+      checkSound(player);
+    });
+    player.addEventListener("volume-change", function () {
+      checkSound(player);
+    });
+
+    timeout = window.setTimeout(function () {
       if (!ready) showStatus("The video player is taking too long to load.");
     }, READY_TIMEOUT_MS);
 
-    player.on("timeupdate", function (data) {
-      handlePosition(secondsOf(data));
+    window.customElements.whenDefined(PLAYER_TAG).then(checkReady, function () {
+      window.clearTimeout(timeout);
+      showStatus("The video player could not load.");
     });
-    player.on("seeked", function (data) {
-      handlePosition(secondsOf(data));
-    });
-    player.on("play", function () {
-      checkSound(player);
-    });
-    player.on("volumechange", function () {
-      checkSound(player);
-    });
-
-    player.ready().then(
-      function () {
-        ready = true;
-        window.clearTimeout(timeout);
-        hideStatus();
-        /* resume: the viewer may already be past the pitch */
-        return player.getCurrentTime().then(handlePosition, function () {});
-      },
-      function () {
-        window.clearTimeout(timeout);
-        showStatus("The video player could not load.");
-      }
-    );
+    checkReady();
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
