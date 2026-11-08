@@ -1,0 +1,472 @@
+/* vsl-kit.css — H&W VSL mechanics, identical on every page.
+   Copy this file UNEDITED to the page's assets/main/css/ and load it BEFORE
+   the page's own stylesheet. The page skins the kit through the variables
+   below and through its own rules; mechanics live here.
+
+   Taken from the GlucoJaro v2 base (PRODUTOS/GlucoJaro/lp/v2):
+     - stage: when the viewer turns the sound on, the top bar folds away, the
+       headline shrinks and the player grows to the width of the screen
+     - from then on the player is pinned to the top and the comments scroll
+       underneath it
+     - at the pitch the comments step aside and the CTA fades in under the
+       player: green that holds 4.5:1 with white, pulse + sheen
+
+   Body classes, set by vsl-pitch.js:
+     is-stage     sound on, until the pitch
+     is-stripped  sound on, forever (the player keeps its size and pin)
+     is-revealed  the offer is on screen
+     is-clearing / is-cleared   comments fading / gone
+     cta-offscreen              CTA scrolled away: its animations pause */
+
+:root {
+  --vsl-maxw: 720px;
+  --vsl-bg: #fff;
+
+  /* Player width at rest and on stage. On stage the width is also capped by
+     the screen height: the video's width/height ratio (.8 = 4:5,
+     .5625 = 9:16) times the height left after --vsl-stage-reserve. */
+  --vsl-player-w: 400px;
+  --vsl-player-w-stage: 680px;
+  --vsl-player-ratio: 0.8;
+  --vsl-stage-reserve: 240px;
+  /* At the pitch the player may have to give width back so the CTA lands on
+     the same screen: its height is capped at the screen minus this. 0px =
+     keep the size it had (a 4:5 video already leaves room); a 9:16 one needs
+     ~250px for headline + button + stock line. */
+  --vsl-pitch-reserve: 0px;
+  /* the player's width at rest; vsl-pitch.js copies the measured value onto
+     #video when the stage opens, so the stage never makes it narrower */
+  --vsl-rest-w: var(--vsl-player-w);
+  /* screen height; dvh (without the browser bars) where supported, below */
+  --vsl-screen-h: 100vh;
+
+  --vsl-top-h: 52px;
+
+  --vsl-headline: 30px;
+  --vsl-headline-stage: 23px;
+  --vsl-headline-pitch: 21px;
+  --vsl-headline-m: 23px;
+  --vsl-headline-stage-m: 19px;
+  --vsl-headline-pitch-m: 17px;
+
+  /* 4.84:1 with white. The label's clamp floor is ~17px on a 390px phone,
+     under the 18.66px that would count as large text, so it needs 4.5:1. */
+  --vsl-green-top: #0f8340;
+  --vsl-green-bottom: #0e7c3a;
+  /* hover goes darker, never lighter: a lighter green drops white text under
+     4.5:1 (the base page's #1cbb5b gave ~2.5:1) */
+  --vsl-green-hover-top: #0c7536;
+  --vsl-green-hover-bottom: #0a6a31;
+  --vsl-red: #d92626;
+
+  --vsl-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* hidden first as the fallback; clip after, because hidden creates a scroll
+   container and that breaks position:sticky on the pinned player */
+body {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+.esconder {
+  display: none;
+}
+
+/* ---- Top bar ------------------------------------------------------------ */
+
+.vsl-top {
+  height: var(--vsl-top-h);
+  overflow: hidden;
+  transition:
+    height 0.5s var(--vsl-ease),
+    border-color 0.5s ease;
+}
+
+/* Once the sound is on the top never comes back: at the pitch it would only
+   hand distraction back at the worst moment. */
+body.is-stripped .vsl-top {
+  height: 0;
+  border-bottom-color: transparent;
+}
+
+/* ---- Headline ----------------------------------------------------------- */
+
+.vsl-headline h1 {
+  font-size: var(--vsl-headline);
+  transition: font-size 0.45s ease;
+}
+
+body.is-stage .vsl-headline h1 {
+  font-size: var(--vsl-headline-stage);
+}
+
+body.is-revealed .vsl-headline h1 {
+  font-size: var(--vsl-headline-pitch);
+}
+
+/* ---- Player ------------------------------------------------------------- */
+
+.vsl-video {
+  position: relative;
+  background: var(--vsl-bg);
+}
+
+/* The player stays pinned to the top and the comments run underneath it. */
+body.is-stripped .vsl-video {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.vsl-video__gutter {
+  transition: padding 0.5s var(--vsl-ease);
+}
+
+.vsl-video__box {
+  /* --stage-w is the only width source. The player reads
+     --player-vertical-width (its inline style is
+     "max-width: var(--player-vertical-width, 400px)"), so feeding that
+     variable is how it is asked to grow. */
+  --stage-w: var(--vsl-player-w);
+  position: relative;
+  width: 100%;
+  max-width: var(--stage-w);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0f0f0f;
+  transition:
+    max-width 0.5s var(--vsl-ease),
+    border-radius 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+/* The Vimeo iframe keeps the video's 540x666 ratio at any width the box
+   gives it (the kit's player sizing came from a smartplayer element). */
+.vsl-video__box iframe {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 540 / 666;
+  border: 0;
+}
+
+/* Stage: as wide as the screen height allows, so the frame never loses its
+   top or bottom — but never narrower than at rest. A 9:16 video on a short
+   phone screen (Safari, WhatsApp) has no room to grow; it keeps its size
+   and still pins. */
+body.is-stripped .vsl-video__box {
+  --stage-w: max(
+    var(--vsl-rest-w),
+    min(var(--vsl-player-w-stage), (var(--vsl-screen-h) - var(--vsl-stage-reserve)) * var(--vsl-player-ratio))
+  );
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+
+/* Pitch: capped so the CTA lands on the same screen. */
+body.is-revealed .vsl-video__box {
+  --stage-w: min(var(--vsl-player-w), (var(--vsl-screen-h) - var(--vsl-pitch-reserve)) * var(--vsl-player-ratio));
+}
+
+body.is-revealed.is-stripped .vsl-video__box {
+  --stage-w: min(
+    max(
+      var(--vsl-rest-w),
+      min(var(--vsl-player-w-stage), (var(--vsl-screen-h) - var(--vsl-stage-reserve)) * var(--vsl-player-ratio))
+    ),
+    (var(--vsl-screen-h) - var(--vsl-pitch-reserve)) * var(--vsl-player-ratio)
+  );
+}
+
+/* The screen as it really is on a phone: dvh leaves out the browser bars.
+   Behind @supports because a custom property is never rejected at parse
+   time: a plain second line would win even where dvh is unknown, and every
+   width above would then compute to none. */
+@supports (height: 100dvh) {
+  :root {
+    --vsl-screen-h: 100dvh;
+  }
+}
+
+/* ---- Comments ----------------------------------------------------------- */
+
+.vsl-comments {
+  transition: opacity 0.6s ease;
+}
+
+/* They step aside together with the offer: opacity first, then out of the
+   flow, so the page height doesn't collapse under the reader. */
+body.is-clearing .vsl-comments {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.is-cleared .vsl-comments {
+  display: none;
+}
+
+/* The pinned player covers most of a phone screen, so anything scrolled to by
+   keyboard has to clear it. --sticky-h carries the measured height. */
+.vsl-cta,
+.vsl-comments {
+  scroll-margin-top: calc(var(--sticky-h, 0px) + 16px);
+}
+
+/* ---- CTA ---------------------------------------------------------------- */
+
+.vsl-cta {
+  max-width: var(--vsl-maxw);
+  margin: 0 auto;
+  padding: 14px 16px 34px;
+  text-align: center;
+}
+
+.vsl-cta__button,
+.vsl-cta__stock {
+  opacity: 0;
+  transition:
+    opacity 0.45s ease-out,
+    transform 0.45s ease-out;
+}
+
+.vsl-cta__stock {
+  transform: translateY(10px);
+}
+
+body.is-revealed .vsl-cta__button {
+  opacity: 1;
+  transition-delay: 0.55s;
+}
+
+body.is-revealed .vsl-cta__stock {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.75s;
+}
+
+.vsl-cta__button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: var(--vsl-player-w);
+  min-height: 62px;
+  margin: 0 auto;
+  padding: 12px 18px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--vsl-green-top), var(--vsl-green-bottom));
+  color: #fff !important;
+  font-size: clamp(17px, 4.4vw, 24px);
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 2px 6px rgba(6, 68, 30, 0.35);
+  /* kills the 300ms double-tap-zoom wait on the one element that has to
+     answer instantly; pinch zoom on the rest of the page is untouched */
+  touch-action: manipulation;
+  animation: vslPulse 1.5s ease-in-out infinite;
+}
+
+.vsl-cta__button span {
+  white-space: nowrap;
+}
+
+.vsl-cta__button:active {
+  filter: brightness(0.92);
+}
+
+.vsl-cta__button:hover,
+.vsl-cta__button:focus-visible {
+  background: linear-gradient(180deg, var(--vsl-green-hover-top), var(--vsl-green-hover-bottom));
+  color: #fff !important;
+}
+
+.vsl-cta__button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 42%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  /* translateX, not left: left re-lays out every frame of an endless loop.
+     440% of the sheen's own width = -60% → 125% of the button's. */
+  transform: translateX(0) skewX(-18deg);
+  animation: vslSheen 3s ease-in-out infinite;
+}
+
+.vsl-cta__stock {
+  margin: 16px auto 0;
+  color: var(--vsl-red);
+  font-size: clamp(11px, 4.4vw, 24px);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.vsl-cta__stock strong {
+  display: inline-block;
+  min-width: 2.1em;
+  color: #111;
+  font-size: 1.15em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.vsl-cta__stock strong.is-dropping {
+  animation: vslDrop 0.34s ease-out;
+}
+
+.vsl-cta__dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--vsl-red);
+  box-shadow: 0 0 0 0 rgba(239, 38, 38, 0.7);
+  vertical-align: baseline;
+  animation: vslDot 1.6s ease-out infinite;
+}
+
+body.cta-offscreen .vsl-cta__button,
+body.cta-offscreen .vsl-cta__button::after,
+body.cta-offscreen .vsl-cta__dot {
+  animation-play-state: paused;
+}
+
+.vsl-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes vslPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 10px 22px rgba(21, 156, 72, 0.3);
+  }
+  50% {
+    transform: scale(1.035);
+    box-shadow: 0 18px 38px rgba(53, 212, 111, 0.55);
+  }
+}
+
+@keyframes vslSheen {
+  0% {
+    transform: translateX(0) skewX(-18deg);
+  }
+  55%,
+  100% {
+    transform: translateX(440%) skewX(-18deg);
+  }
+}
+
+@keyframes vslDot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 38, 38, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 38, 38, 0);
+  }
+}
+
+@keyframes vslDrop {
+  0% {
+    transform: translateY(-3px);
+    color: var(--vsl-red);
+  }
+  55% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+    color: #111;
+  }
+}
+
+/* ---- Phone -------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .vsl-headline h1 {
+    font-size: var(--vsl-headline-m);
+  }
+
+  body.is-stage .vsl-headline h1 {
+    font-size: var(--vsl-headline-stage-m);
+  }
+
+  body.is-revealed .vsl-headline h1 {
+    font-size: var(--vsl-headline-pitch-m);
+  }
+
+  /* On a phone the only width left to gain is the gutter: it goes edge to
+     edge. padding:0, never max-width:none — "none" can't be interpolated and
+     the player would jump in a single frame. */
+  body.is-stripped .vsl-video__gutter {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  body.is-stripped .vsl-video__box {
+    border-radius: 0;
+  }
+
+  .vsl-cta {
+    padding: 12px 16px 26px;
+  }
+
+  .vsl-cta__button {
+    min-height: 56px;
+    border-radius: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vsl-cta__button,
+  .vsl-cta__dot,
+  .vsl-cta__stock strong.is-dropping {
+    animation: none;
+  }
+
+  .vsl-cta__button {
+    box-shadow: 0 12px 24px rgba(21, 156, 72, 0.35);
+  }
+
+  .vsl-cta__button::after {
+    display: none;
+  }
+
+  .vsl-top,
+  .vsl-headline h1,
+  .vsl-video__gutter,
+  .vsl-video__box,
+  .vsl-comments,
+  .vsl-cta__button,
+  .vsl-cta__stock {
+    transition: none;
+  }
+}

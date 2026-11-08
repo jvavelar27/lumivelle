@@ -28,3 +28,13 @@ Import `jvavelar27/lumivelle`, framework Other. `vercel.json` sets `node scripts
 - Google Fonts is the only remote resource (typefaces); CSP in `vercel.json` allows it.
 - Rating figures (4.8, 17,012+ reviews) were supplied by the advertiser and are shown as advertiser-provided, not independently verified, in the rating strip and review module. No individual testimonials, verified-buyer labels, third-party badges, prices or discounts are used.
 - The top banner has a visitor-session timer (`campaign.js`): 90 minutes from first load in the tab session, stored in `sessionStorage`, never a calendar or offer deadline. See `DR-STRUCTURE.md` for the required direct-response section order.
+
+## /vsl route (Vimeo video page)
+- `vsl.html` is served at `/vsl` (Vercel `cleanUrls`); it is independent of the root sales page and is `noindex, nofollow`. Layout, CSS, headline, three press logos and green button come from the supplied reference page, with the VTurb player replaced by the Vimeo iframe (video 1244806219, 540x666).
+- The green purchase button opens at **2834 seconds of Vimeo playback (47:14)**, not wall-clock time. Pausing stops progress toward it; seeking past it unlocks it; resuming past it unlocks it. It is driven only by the official Vimeo player.js SDK (`https://player.vimeo.com/api/player.js`, `timeupdate`/`seeked` payload seconds and `getCurrentTime()` after `ready()`). There is no `?test=true` shortcut and no early-reveal on errors. The iframe title `[47_31]` is the supplied identifier, not the unlock time.
+- An earned reveal is remembered in `sessionStorage` under `lumivelle-vsl-unlock:<videoId>:2834`; denied storage degrades gracefully.
+- If the SDK, iframe or player fails to load, a visible status with a reload link appears and the button stays hidden. Without JavaScript a notice explains JavaScript is required.
+- Sound "stage" (headline shrink, player growth and pin) starts only when Vimeo reports unmuted with volume above zero; Escape steps out.
+- Only allowlisted tracking fields (utm_*, fbclid, gclid, ttclid, click_id, sub1-5, src, sck) are appended to the checkout link, never overriding `hid`/`affid`.
+- `vercel.json` CSP adds `frame-src https://player.vimeo.com` and `https://player.vimeo.com/api/player.js` to `script-src`. Build copies `vsl.html` and six files from `assets/vsl/`.
+- Tests: `tests/test_vsl.py` (route/embed/CSP) and `tests/test_vsl_player.py` (unlock behaviour against the clearly-labelled double in `tests/vsl_double.mjs`; real Vimeo behaviour needs browser QA).

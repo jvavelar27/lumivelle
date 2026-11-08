@@ -1,0 +1,221 @@
+/* Lumivelle / HW / LD03 — white skin over the H&W VSL kit
+   (assets/main/css/vsl-kit.css, loaded first): plum headline, player with
+   the kit's single green button under it at the pitch, "As featured in"
+   band. The kit runs the stage; this file is the look.
+
+   Where the page departs from the kit, same calls as the Oculume page:
+     - on stage the headline shrinks a little; the player only widens (to
+       the screen edges on phones) with a slight zoom
+     - at the pitch nothing changes but the button appearing: the player and
+       the headline keep the size they had (the kit would shrink both) */
+
+:root {
+  /* One family in two roles: Inter Tight for the headline and the band,
+     Inter for the button. The original loaded seven (Poppins, Roboto,
+     Montserrat, Inter Tight, Ubuntu, Red Hat Display, Google Sans). */
+  --font-display: "Inter Tight", Inter, "Helvetica Neue", Arial, sans-serif;
+  --font-body: Inter, "Helvetica Neue", Arial, sans-serif;
+
+  /* The Vimeo video is 540×666. */
+  --vsl-player-ratio: 0.8108;
+
+  /* --rest-reserve is this page's own: the screen height the headline takes
+     on landing, so the whole player fits under it. On stage the headline
+     shrinks, so the kit's --vsl-stage-reserve is a little smaller. */
+  --rest-reserve: 180px;
+  --vsl-stage-reserve: 160px;
+  --rest-w: min(var(--vsl-player-w), (var(--vsl-screen-h) - var(--rest-reserve)) * var(--vsl-player-ratio));
+
+  /* On stage the headline shrinks a little; at the pitch it stays. */
+  --vsl-headline: 30px;
+  --vsl-headline-stage: 26px;
+  --vsl-headline-pitch: var(--vsl-headline-stage);
+  --vsl-headline-m: clamp(18px, 5.4vw, 22px);
+  --vsl-headline-stage-m: clamp(16px, 4.9vw, 20px);
+  --vsl-headline-pitch-m: var(--vsl-headline-stage-m);
+
+  --plum: #935094;
+  --cocoa: #543c3c;
+  --rose: #c47a8a;
+  --paper: #fff;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--vsl-bg);
+  color: var(--cocoa);
+  font-family: var(--font-body);
+  line-height: 1.45;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--vsl-maxw);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ---- Headline ---------------------------------------------------------- */
+
+.vsl-headline {
+  padding: 24px 0 14px;
+  text-align: center;
+}
+
+.vsl-headline h1 {
+  color: var(--plum);
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.vsl-headline em {
+  color: var(--cocoa);
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* Sound never turned on: at the pitch the headline keeps its landing size
+   (the kit's pitch size is the stage one here). */
+body.is-revealed:not(.is-stripped) .vsl-headline h1 {
+  font-size: var(--vsl-headline);
+}
+
+@media (max-width: 640px) {
+  body.is-revealed:not(.is-stripped) .vsl-headline h1 {
+    font-size: var(--vsl-headline-m);
+  }
+}
+
+/* ---- Player ------------------------------------------------------------ */
+
+.vsl-video {
+  padding-bottom: 6px;
+}
+
+/* On landing the whole player is on screen (--rest-w); the kit copies that
+   width when the stage opens. At the pitch the player keeps the size it
+   had, where the kit would give width back: --rest-w if the sound never
+   came on, the stage size if it did. The button below is brought into view
+   by the reveal scroll ("fit"). */
+.vsl-video__box,
+body.is-revealed .vsl-video__box {
+  --stage-w: var(--rest-w);
+}
+
+body.is-revealed.is-stripped .vsl-video__box {
+  --stage-w: max(
+    var(--vsl-rest-w),
+    min(var(--vsl-player-w-stage), (var(--vsl-screen-h) - var(--vsl-stage-reserve)) * var(--vsl-player-ratio))
+  );
+}
+
+/* Sound on: the player widens to the screen edges (the kit drops the gutter
+   on phones) with a slight zoom that peaks and settles as it lands. Box and
+   gutter share one duration, so the growth reads as one move. */
+.vsl-video__gutter,
+.vsl-video__box {
+  transition-duration: 0.7s;
+}
+
+body.is-stage .vsl-video__box {
+  animation: lvZoom 0.8s var(--vsl-ease);
+}
+
+@keyframes lvZoom {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.02);
+  }
+}
+
+/* ---- Offer (the kit's button) ------------------------------------------ */
+
+.vsl-cta {
+  padding-top: 8px;
+}
+
+.vsl-cta__button {
+  font-size: 30px;
+}
+
+/* ---- As featured in ---------------------------------------------------- */
+
+.press {
+  margin-top: 24px;
+  padding: 40px 16px 44px;
+  background: var(--rose);
+  color: var(--paper);
+  text-align: center;
+}
+
+.press__title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 8.4vw, 40px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.press__logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 7vw, 48px);
+  margin-top: 32px;
+}
+
+.press__logos img {
+  width: auto;
+  height: 58px;
+}
+
+.press__logos img[alt="ABC News"] {
+  height: 72px;
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  body.is-stage .vsl-video__box {
+    animation: none;
+  }
+}
+
+/* ---- Player status (SDK or iframe failure, no-JS notice) ---------------- */
+
+.vsl-status {
+  max-width: var(--vsl-player-w);
+  margin: 12px auto 0;
+  padding: 10px 14px;
+  border: 1px solid var(--rose);
+  border-radius: 8px;
+  color: var(--cocoa);
+  font-size: 15px;
+  text-align: center;
+}
+
+.vsl-status[hidden] {
+  display: none;
+}
+
+.vsl-status a {
+  color: var(--plum);
+  font-weight: 700;
+}
