@@ -51,6 +51,14 @@ class LandingAcceptance(unittest.TestCase):
             self.assertIn('width', a)
             self.assertIn('height', a)
         self.assertNotIn('data:image', self.html)
+    def test_hero_leads_with_specific_visible_benefits(self):
+        match = re.search(r'<h1\b[^>]*>(.*?)</h1>', self.html, re.S)
+        self.assertIsNotNone(match)
+        headline = ' '.join(re.sub(r'<[^>]+>', '', match.group(1)).split())
+        expected = 'Help your skin look firmer and your fine lines look softer.'
+        self.assertEqual(headline, expected)
+        og_titles = [a.get('content') for tag, a in self.parser.tags if tag == 'meta' and a.get('property') == 'og:title']
+        self.assertEqual(og_titles, ['LumiVelle — ' + expected])
     def test_core_layout_is_adapted_not_replaced(self):
         for cls in ['herolp', 'hl-top', 'hl-bottom', 'born-cols', 'ing-grid', 'steps-grid', 'offer-wrap', 'qa']:
             self.assertIn(cls, self.html)
