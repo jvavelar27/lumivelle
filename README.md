@@ -1,6 +1,6 @@
 # LumiVelle landing page (static)
 
-Static landing page: `index.html` (inline CSS/JS, no frontend framework or package dependencies). Adapted from the `lp1-GLP-1.html` source layout (`.herolp`, `.born-cols`, `.ing-grid`, `.steps-grid`, `.offer-wrap`, `details.qa`).
+Static landing page: `index.html` (inline CSS/JS plus the `campaign.js` session-timer module, no frontend framework or package dependencies). Adapted from the `lp1-GLP-1.html` source layout (`.herolp`, `.born-cols`, `.ing-grid`, `.steps-grid`, `.offer-wrap`, `details.qa`).
 
 ## Run locally
     python -m http.server 8000     # then open http://localhost:8000
@@ -10,7 +10,7 @@ Static landing page: `index.html` (inline CSS/JS, no frontend framework or packa
 
 ## Deploy (Vercel, static)
 Import `jvavelar27/lumivelle`, framework Other. `vercel.json` sets `node scripts/build.mjs` as build command and `dist` as output directory, plus security headers and asset caching.
-`npm run build` copies only HTML, favicon and optimized assets into `dist/`; tests, source notes and documentation are not published.
+`npm run build` copies only HTML, favicon, `campaign.js` and optimized assets into `dist/`; tests, source notes and documentation are not published.
 
 ## Files
 - `assets/` — optimized `.webp` images (product, hero, kit-2, kit-3). Product art must match the supplied label (`Affiliate Brief/images/cap-1-img1.png`, kept out of this repo).
@@ -26,4 +26,5 @@ Import `jvavelar27/lumivelle`, framework Other. `vercel.json` sets `node scripts
 - Verified from merchant modals: package renews every 28 days until canceled; optional Wellness Club is separate; refund requests do not cancel renewals. Page discloses this near the CTA and in the FAQ without repeating merchant dates or prices. Optional extras (money-back protection, express shipping) are default-on at checkout; the page tells buyers to review them. Terms/refund pages are modals on the merchant site, not linkable.
 - Guarantee is described only as "60-day money-back guarantee, subject to the merchant's refund policy".
 - Google Fonts is the only remote resource (typefaces); CSP in `vercel.json` allows it.
-- No reviews, ratings, customer counts, urgency or testimonials are used because none are verified.
+- Rating figures (4.8, 17,012+ reviews) were supplied by the advertiser and are shown as advertiser-provided, not independently verified, in the rating strip and review module. No individual testimonials, verified-buyer labels, third-party badges, prices or discounts are used.
+- The top banner has a visitor-session timer (`campaign.js`): 90 minutes from first load in the tab session, stored in `sessionStorage`, never a calendar or offer deadline. See `DR-STRUCTURE.md` for the required direct-response section order.

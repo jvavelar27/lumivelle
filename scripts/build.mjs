@@ -6,7 +6,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 await rm(dist, { recursive: true, force: true });
 await mkdir(join(dist, 'assets'), { recursive: true });
-for (const name of ['index.html', 'privacy.html', 'terms.html', 'favicon.svg']) {
+for (const name of ['index.html', 'privacy.html', 'terms.html', 'favicon.svg', 'campaign.js']) {
   await copyFile(join(root, name), join(dist, name));
 }
 let assets = 0;
@@ -15,4 +15,4 @@ for (const name of await readdir(join(root, 'assets'))) {
   await copyFile(join(root, 'assets', name), join(dist, 'assets', name));
   assets++;
 }
-console.log(`Built dist: 4 site files, ${assets} optimized assets. Source notes and tests are excluded.`);
+console.log(`Built dist: 5 site files, ${assets} optimized assets. Source notes and tests are excluded.`);

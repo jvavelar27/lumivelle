@@ -54,10 +54,9 @@ h2.display{font-size:clamp(26px,4.4vw,38px)}
 .skip{position:absolute;left:12px;top:-60px;background:var(--plum);color:#fff;padding:12px 18px;border-radius:10px;z-index:100;font-weight:800;text-decoration:none}
 .skip:focus{top:12px}
 :focus-visible{outline:3px solid var(--rose);outline-offset:3px;border-radius:6px}
-.dark :focus-visible,.topbar :focus-visible,footer :focus-visible{outline-color:#fff}
+.dark :focus-visible,.campaign :focus-visible,footer :focus-visible{outline-color:#fff}
 
 /* top bar + header */
-.topbar{background:var(--plum);color:#fff;text-align:center;padding:9px 14px;font-size:14px;font-weight:600;letter-spacing:.2px}
 header.site{background:#fff;border-bottom:1px solid var(--line)}
 .hdr-in{max-width:1140px;margin:0 auto;padding:6px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:64px}
 .logo{display:inline-flex;align-items:center;gap:10px;font-family:'Sora',Arial,sans-serif;font-weight:800;font-size:25px;color:var(--plum);text-decoration:none;letter-spacing:.5px;min-height:44px}
@@ -276,6 +275,70 @@ footer p{margin:0 0 12px;line-height:1.65}
 .foot-links a{color:#fff;text-underline-offset:3px;font-weight:600;padding:12px 2px;min-height:44px;display:inline-flex;align-items:center}
 footer a{color:#fff}
 
+
+/* campaign band + rating strip */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.campaign{background:#A55F3D;color:#fff;text-align:center;padding:12px 14px 10px}
+.camp-line{margin:0;font-weight:800;font-size:15px;letter-spacing:1.6px;text-transform:uppercase;line-height:1.5}
+.camp-line a{color:#fff;font-weight:600;letter-spacing:.2px;text-transform:none;font-size:16px;margin-left:8px;text-decoration:underline;text-underline-offset:4px;display:inline-block;padding:6px 2px}
+.timer-row{display:none;align-items:center;justify-content:center;gap:10px;margin-top:2px;flex-wrap:wrap}
+html.js .timer-row{display:flex}
+.timer-label{font-size:11px;font-weight:800;letter-spacing:1.8px;opacity:1}
+#session-countdown{display:inline-flex;gap:12px;align-items:baseline;font-variant-numeric:tabular-nums}
+.tg{display:inline-flex;align-items:baseline;gap:3px}
+.tg b{font-family:'Sora',Arial,sans-serif;font-size:24px;font-weight:700;line-height:1}
+.tg small{font-size:12px;font-weight:600;letter-spacing:.8px}
+.timer-state{margin:4px 0 0;font-size:12.5px;font-weight:600}
+.timer-state:empty{display:none}
+.rating-strip{background:#fff;border-bottom:1px solid var(--line);padding:10px 14px 9px}
+.rating-in{max-width:1140px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2px 18px;align-items:center;color:var(--ink);text-decoration:none}
+.rating-in:hover .rate-line{text-decoration:underline}
+.stars{display:inline-flex;gap:3px;align-items:center}
+.stars i{display:inline-flex;width:24px;height:24px;background:#1F8A5B;color:#fff;align-items:center;justify-content:center;font-style:normal;font-size:15px;line-height:1}
+.rate-word{font-weight:800;font-size:17px}
+.rate-line{font-size:15px;font-weight:600}
+.rate-src{flex-basis:100%;font-size:12px;color:var(--plum-2);margin:0}
+@media(min-width:861px){.rate-src{flex-basis:auto}}
+
+/* direct-response sections */
+.proof-cards{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:44px 0}
+.proof-link{text-align:center;margin:22px 0 0;font-weight:700;font-size:16px}
+.proof-link a{color:var(--rose-2);text-underline-offset:3px}
+.trust-strip{background:var(--plum);color:#fff;padding:22px 0}
+.trust-list{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:10px 18px;max-width:1040px;margin:0 auto;padding:0 18px;text-align:center}
+.trust-list li{font-weight:700;font-size:15px;line-height:1.35}
+.trust-list b{display:block;font-family:'Sora',Arial,sans-serif;font-size:22px;color:#F6B8CB}
+@media(max-width:700px){.trust-list{grid-template-columns:1fr 1fr}}
+.cta-band{padding:44px 0;background:var(--blush);text-align:center}
+.cta-band h2{color:var(--plum);margin-bottom:12px}
+.cta-band p.lead{max-width:560px;margin:0 auto 22px;color:var(--plum-2);font-size:18px}
+.cta-band.urgency{background:linear-gradient(135deg,#FFF1E8,var(--blush))}
+.expect{background:var(--blush)}
+.exp-list{list-style:none;counter-reset:e;margin:28px 0 0;display:grid;gap:14px}
+.exp-list li{counter-increment:e;position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 18px 18px 64px}
+.exp-list li:before{content:counter(e);position:absolute;left:16px;top:16px;width:36px;height:36px;border-radius:50%;background:var(--rose);color:#fff;font-family:'Sora',Arial,sans-serif;font-weight:700;display:flex;align-items:center;justify-content:center}
+.exp-list b{display:block;font-family:'Sora',Arial,sans-serif;color:var(--plum);font-size:18px;margin-bottom:2px}
+.exp-list span{font-size:16.5px}
+.helpers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:1020px;margin:22px auto 0;padding:0 18px}
+.helpers div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:15px}
+.helpers b{display:block;color:var(--plum);font-family:'Sora',Arial,sans-serif;margin-bottom:3px}
+@media(max-width:760px){.helpers{grid-template-columns:1fr}}
+.g-in .btn{margin:18px 0 0;max-width:360px}
+@media(max-width:600px){.g-in .btn{margin:18px auto 0}}
+.sproof{background:#fff;padding:40px 0}
+.sp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+@media(max-width:700px){.sp-grid{grid-template-columns:1fr}}
+.sp-card{background:var(--blush-2);border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center}
+.sp-card h3{font-family:'Sora',Arial,sans-serif;color:var(--plum);font-size:18px;margin-bottom:6px}
+.sp-card p{font-size:15.5px;margin:0}
+.rvw{background:var(--blush)}
+.rvw-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px 22px;text-align:center;box-shadow:0 4px 16px rgba(58,18,48,.08)}
+.rvw-score{font-family:'Sora',Arial,sans-serif;font-weight:800;font-size:54px;color:var(--plum);line-height:1}
+.rvw-card .stars{justify-content:center;margin:12px 0 8px}
+.rvw-count{font-weight:800;font-size:19px;color:var(--plum);margin:0 0 6px}
+.rvw-src{font-size:13.5px;color:var(--plum-2);max-width:520px;margin:0 auto 16px}
+.rvw-note{max-width:620px;margin:22px auto 0;text-align:center;font-size:16px}
+
 /* reveal animation (visible by default without JS) */
 html.js .rv{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
 html.js .rv.on{opacity:1;transform:none}
@@ -288,15 +351,34 @@ html.js .rv.on{opacity:1;transform:none}
   body{font-size:17px}
   section{padding:40px 0}
   .wrap{padding:0 16px}
-  .topbar{font-size:12.5px}
+  .camp-line{font-size:13.5px;letter-spacing:1.2px}.camp-line a{font-size:14.5px}.tg b{font-size:21px}
   .btn{font-size:17.5px}
 }
 </style>
 <script>document.documentElement.className+=" js";</script>
+<script type="module" src="campaign.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
-<div class="topbar">LumiVelle · Your daily beauty ritual, reimagined · Independent affiliate page</div>
+<div class="campaign" id="campaign-banner" data-dr-role="campaign">
+  <p class="camp-line">LumiVelle Offer <a href="https://order.wealthpay.io/qo52qotcz7vr?hid=b2lkPW9mZl82NDcxMDc5JmFpZD1hZmZfMjg3NzUxNCZ1aWQ9YmxfODY3NTQxMQ%3D%3D&amp;affid=aff_2877514" rel="sponsored noopener">Shop now and view package options</a></p>
+  <div class="timer-row"><span class="timer-label">SESSION TIMER</span>
+    <div id="session-countdown" role="timer" aria-label="Session timer: 1 hours, 30 minutes remaining" data-duration-seconds="5400">
+      <span class="tg"><b data-unit="hours">01</b><small>HRS</small></span>
+      <span class="tg"><b data-unit="minutes">30</b><small>MINS</small></span>
+      <span class="tg"><b data-unit="seconds">00</b><small>SECS</small></span>
+    </div>
+  </div>
+  <p class="timer-state" data-state aria-live="polite"></p>
+</div>
+<div class="rating-strip" id="rating-strip" data-dr-role="proof-strip">
+  <a class="rating-in" href="#reviews" aria-label="Rated 4.8 with 17,012+ reviews. Advertiser-provided figures. Jump to reviews.">
+    <span class="stars" aria-hidden="true"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span>
+    <span class="rate-word">Excellent</span>
+    <span class="rate-line">Rated 4.8 · 17,012+ Reviews</span>
+    <span class="rate-src">Advertiser-provided rating figures; not independently verified.</span>
+  </a>
+</div>
 <header class="site"><div class="hdr-in">
   <a class="logo" href="#top" aria-label="LumiVelle home"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#FBEFF2" stroke="#B83A66" stroke-width="2"/><path d="M16 7c3 4 5 6.5 5 9.5a5 5 0 0 1-10 0C11 13.500 13 11 16 7z" fill="#B83A66"/></svg>Lumi<span>Velle</span></a>
   <nav class="main" aria-label="Page sections">
@@ -310,7 +392,7 @@ html.js .rv.on{opacity:1;transform:none}
 <main id="main">
 
 <!-- HERO -->
-<section class="hero" id="top">
+<section class="hero" id="top" data-dr-role="hero">
   <div class="herolp">
     <div class="hl-top">
       <p class="hl-eyebrow">Advanced Skin Renewal Gummies</p>
@@ -333,36 +415,47 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- BENEFIT TILES -->
-<section class="tiles" aria-labelledby="tiles-h">
+<section class="tiles proof-cards" data-dr-role="early-proof" aria-labelledby="tiles-h">
   <div class="wrap-wide">
-    <h2 class="display sec-head" id="tiles-h" style="font-size:clamp(22px,3.6vw,30px)">A beauty ritual that fits the life you already have</h2>
+    <h2 class="display sec-head" id="tiles-h" style="font-size:clamp(22px,3.6vw,30px)">What you can check on the label before you decide</h2>
     <div class="tile-grid" style="margin-top:26px">
       <div class="tile rv">
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#F7DCE5"/><path d="M24 11c4 5 7 8.500 7 12.500a7 7 0 0 1-14 0C17 19.500 20 16 24 11z" fill="#B83A66"/></svg>
-        <h3>Inside-out support</h3>
-        <p>Nourishment designed to work alongside what you apply on the surface.</p>
+        <h3>Four roles</h3>
+        <p>Gelatin, PDRN, resveratrol and vitamin C, each described by the brand as playing a different part.</p>
       </div>
       <div class="tile rv">
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#F7DCE5"/><circle cx="24" cy="24" r="8" fill="#B83A66"/><g stroke="#B83A66" stroke-width="3" stroke-linecap="round"><path d="M24 7v4M24 37v4M7 24h4M37 24h4M12 12l3 3M33 33l3 3M36 12l-3 3M15 33l-3 3"/></g></svg>
-        <h3>A radiant look</h3>
-        <p>Formulated to promote a smooth, radiant appearance as part of a consistent routine.</p>
+        <h3>Chewable format</h3>
+        <p>A gummy: no powders, no mixing, no extra steps to remember.</p>
       </div>
       <div class="tile rv">
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#F7DCE5"/><path d="M24 10l11 4v9c0 8-5 13-11 15-6-2-11-7-11-15v-9z" fill="#B83A66"/><path d="M19 24l4 4 7-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <h3>Antioxidant care</h3>
-        <p>Resveratrol and vitamin C bring antioxidant cellular support to your day.</p>
+        <h3>30 per bottle</h3>
+        <p>Each bottle holds 30 gummies. Follow the serving size on the label.</p>
       </div>
       <div class="tile rv">
         <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#F7DCE5"/><circle cx="24" cy="24" r="12" fill="none" stroke="#B83A66" stroke-width="3"/><path d="M24 17v7l5 3" fill="none" stroke="#B83A66" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <h3>Easy to keep up</h3>
-        <p>A chewable gummy: no powders, no mixing, no extra steps to remember.</p>
+        <h3>60-day policy</h3>
+        <p>The merchant offers a 60-day money-back guarantee, subject to its refund policy.</p>
       </div>
     </div>
+    <p class="proof-link">Want to see the rating summary? <a href="#reviews">Jump to reviews</a> (advertiser-provided figures).</p>
   </div>
 </section>
 
+<!-- CREDIBILITY STRIP -->
+<section class="trust-strip" data-dr-role="trust-strip" aria-label="LumiVelle at a glance">
+  <ul class="trust-list">
+    <li><b>30</b>gummies per bottle</li>
+    <li><b>4</b>communicated ingredient roles</li>
+    <li><b>Chewable</b>no powders or mixing</li>
+    <li><b>60-day</b>merchant money-back policy</li>
+  </ul>
+</section>
+
 <!-- STORY -->
-<section class="story" aria-labelledby="story-h">
+<section class="story" data-dr-role="story" aria-labelledby="story-h">
   <div class="wrap">
     <span class="kicker">Sound familiar?</span>
     <h2 class="display" id="story-h">You still feel like you. Some photos just don't say so.</h2>
@@ -376,7 +469,7 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- KOREAN PINK GELATIN -->
-<section class="kpg" id="gelatin" aria-labelledby="kpg-h">
+<section class="kpg" id="gelatin" data-dr-role="mechanism" aria-labelledby="kpg-h">
   <div class="wrap">
     <span class="kicker">The curiosity behind the formula</span>
     <h2 class="display" id="kpg-h">What is “Korean Pink Gelatin”?</h2>
@@ -393,7 +486,7 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- PRODUCT REVEAL -->
-<section class="born dark" id="born" aria-labelledby="born-h">
+<section class="born dark" id="born" data-dr-role="born" aria-labelledby="born-h">
   <div class="wrap born-cols">
     <h2 class="display" id="born-h">Meet LumiVelle: your daily Collagen Reset ritual</h2>
     <p class="sub">Advanced Skin Renewal Gummies in a 30-count bottle, made to support the way your skin looks, from the inside.</p>
@@ -412,7 +505,7 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- INGREDIENTS -->
-<section class="ing" id="formula" aria-labelledby="ing-h">
+<section class="ing" id="formula" data-dr-role="ingredients" aria-labelledby="ing-h">
   <div class="wrap-wide">
     <span class="kicker">The four-part Collagen Reset</span>
     <h2 class="display sec-head" id="ing-h">Four ingredients. Four roles in the story.</h2>
@@ -452,7 +545,7 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- STEPS -->
-<section class="steps" aria-labelledby="steps-h">
+<section class="steps" data-dr-role="steps" aria-labelledby="steps-h">
   <div class="wrap">
     <span class="kicker">How the story fits together</span>
     <h2 class="display sec-head" id="steps-h">The Collagen Reset, in four simple steps</h2>
@@ -466,8 +559,18 @@ html.js .rv.on{opacity:1;transform:none}
   </div>
 </section>
 
+<!-- MID CTA -->
+<section class="cta-band" data-dr-role="mid-cta" aria-labelledby="mid-h">
+  <div class="wrap">
+    <h2 class="display" id="mid-h">Ready to try the inside-out step?</h2>
+    <p class="lead">Four roles, one chewable gummy, one daily habit. See the package options on the secure order page.</p>
+    <a class="btn" href="https://order.wealthpay.io/qo52qotcz7vr?hid=b2lkPW9mZl82NDcxMDc5JmFpZD1hZmZfMjg3NzUxNCZ1aWQ9YmxfODY3NTQxMQ%3D%3D&amp;affid=aff_2877514" rel="sponsored noopener">Choose your package <span class="arr" aria-hidden="true">→</span></a>
+    <p class="under-btn">Subscription renews every 28 days until canceled. Review terms at checkout.</p>
+  </div>
+</section>
+
 <!-- DAILY RITUAL -->
-<section class="routine" id="ritual" aria-labelledby="ritual-h">
+<section class="routine day" id="ritual" data-dr-role="ritual" aria-labelledby="ritual-h">
   <div class="wrap">
     <span class="kicker">Make it yours</span>
     <h2 class="display sec-head" id="ritual-h">A small ritual you'll actually keep</h2>
@@ -494,8 +597,18 @@ html.js .rv.on{opacity:1;transform:none}
   </div>
 </section>
 
+<!-- DECISION CTA -->
+<section class="cta-band urgency" data-dr-role="decision-cta" aria-labelledby="dec-h">
+  <div class="wrap">
+    <h2 class="display" id="dec-h">Your ritual starts the day you decide it does</h2>
+    <p class="lead">The glow you want from the inside is built one consistent day at a time. Check the current package options now, while the idea is fresh, and see exactly what is offered before you commit.</p>
+    <a class="btn" href="https://order.wealthpay.io/qo52qotcz7vr?hid=b2lkPW9mZl82NDcxMDc5JmFpZD1hZmZfMjg3NzUxNCZ1aWQ9YmxfODY3NTQxMQ%3D%3D&amp;affid=aff_2877514" rel="sponsored noopener">Check current package options <span class="arr" aria-hidden="true">→</span></a>
+    <p class="under-btn">Package terms, shipping and any optional add-ons are shown on the order page.</p>
+  </div>
+</section>
+
 <!-- WHO IT SUITS -->
-<section class="who" aria-labelledby="who-h">
+<section class="who whosec" data-dr-role="qualifier" aria-labelledby="who-h">
   <div class="wrap">
     <span class="kicker">Is it for you?</span>
     <h2 class="display sec-head" id="who-h">Made for women who age on their own terms</h2>
@@ -523,7 +636,7 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- TOPICAL VS ORAL -->
-<section class="compare" aria-labelledby="cmp-h">
+<section class="compare" data-dr-role="comparison" aria-labelledby="cmp-h">
   <div class="wrap">
     <span class="kicker">Better together</span>
     <h2 class="display sec-head" id="cmp-h">Topical skincare and oral support: different jobs</h2>
@@ -544,8 +657,23 @@ html.js .rv.on{opacity:1;transform:none}
   </div>
 </section>
 
+<!-- EXPECTATION -->
+<section class="expect" data-dr-role="expectation" aria-labelledby="exp-h">
+  <div class="wrap">
+    <span class="kicker">What to expect</span>
+    <h2 class="display sec-head" id="exp-h">How your first weeks with a new ritual can look</h2>
+    <p class="sec-sub">This is an experience guide, not a results timeline. Individual experiences vary.</p>
+    <ol class="exp-list">
+      <li><b>Check the label</b><span>Read the Supplement Facts, serving size and allergen information, and talk to a healthcare professional if anything applies to you.</span></li>
+      <li><b>Build the habit</b><span>Attach your gummy to something you already do each day, so the routine becomes easy to repeat.</span></li>
+      <li><b>Notice your own experience</b><span>Keep your skincare and sun-care habits steady and pay attention to how the routine feels for you.</span></li>
+      <li><b>Review whether it suits you</b><span>Decide whether the ritual fits your life, and use the merchant's 60-day policy if you want to make a request.</span></li>
+    </ol>
+  </div>
+</section>
+
 <!-- OFFER -->
-<section class="offer" id="offer" aria-labelledby="offer-h">
+<section class="offer" id="offer" data-dr-role="offer" aria-labelledby="offer-h">
   <div class="wrap">
     <span class="kicker">Choose your package</span>
     <h2 class="display sec-head" id="offer-h">Start your <span class="accent">LumiVelle</span> ritual</h2>
@@ -582,21 +710,55 @@ html.js .rv.on{opacity:1;transform:none}
       <div class="checkout-note"><b>Before you pay:</b> review shipping, optional add-ons and any subscription terms. Optional extras such as money-back protection or express shipping may be pre-selected, so keep or remove them as you prefer. This page does not set prices or terms; the merchant does.</div>
     </div>
   </div>
+  <div class="helpers">
+    <div><b>Not sure which size?</b>Start with 1 bottle to try the habit, or choose more if you want to keep the routine going.</div>
+    <div><b>Want to review terms?</b>The subscription, shipping and optional add-ons are all shown before you pay.</div>
+    <div><b>Questions first?</b>The FAQ below covers the product, safety, ordering and cancellation.</div>
+  </div>
 </section>
 
 <!-- GUARANTEE -->
-<section class="guarantee" id="guarantee" aria-labelledby="g-h">
+<section class="guarantee" id="guarantee" data-dr-role="guarantee" aria-labelledby="g-h">
   <div class="g-in">
     <svg class="g-seal" viewBox="0 0 110 110" aria-hidden="true"><circle cx="55" cy="55" r="52" fill="none" stroke="#F6B8CB" stroke-width="3"/><circle cx="55" cy="55" r="44" fill="#B83A66"/><text x="55" y="58" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-weight="800" font-size="34" fill="#fff">60</text><text x="55" y="76" text-anchor="middle" font-family="Sora,Arial,sans-serif" font-weight="700" font-size="11" fill="#fff" letter-spacing="1">DAYS</text></svg>
     <div>
       <h2 id="g-h">60-day money-back guarantee</h2>
       <p>The merchant's refund policy provides a 60-day window from your purchase date. Email support for authorization before sending anything back; approved refunds go to your original payment method. A refund request does not cancel subscription renewals, which is a separate request. Review the current refund policy on the order page. Contact <a href="mailto:support@uselumivelle.com">support@uselumivelle.com</a>.</p>
+      <a class="btn btn-light" href="https://order.wealthpay.io/qo52qotcz7vr?hid=b2lkPW9mZl82NDcxMDc5JmFpZD1hZmZfMjg3NzUxNCZ1aWQ9YmxfODY3NTQxMQ%3D%3D&amp;affid=aff_2877514" rel="sponsored noopener">Choose your package <span class="arr" aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
 
+<!-- TRUST RECAP -->
+<section class="sproof" data-dr-role="trust-recap" aria-labelledby="recap-h">
+  <div class="wrap">
+    <h2 class="display sec-head" id="recap-h" style="font-size:clamp(22px,3.6vw,30px)">Everything in one look</h2>
+    <div class="sp-grid">
+      <div class="sp-card"><h3>The formula</h3><p>Four ingredient roles: gelatin, PDRN, resveratrol and vitamin C.</p></div>
+      <div class="sp-card"><h3>The format</h3><p>30 chewable gummies per bottle, taken as directed on the label.</p></div>
+      <div class="sp-card"><h3>The policy</h3><p>A 60-day money-back guarantee, subject to the merchant's refund policy.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="rvw" id="reviews" data-dr-role="reviews" aria-labelledby="rvw-h">
+  <div class="wrap">
+    <span class="kicker">Customer rating</span>
+    <h2 class="display sec-head" id="rvw-h">What the rating summary shows</h2>
+    <div class="rvw-card">
+      <div class="rvw-score">4.8</div>
+      <div class="stars" aria-hidden="true"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></div>
+      <p class="rvw-count">Excellent · 17,012+ Reviews</p>
+      <p class="rvw-src">Advertiser-provided rating figures; not independently verified by this page.</p>
+      <a class="btn" href="https://order.wealthpay.io/qo52qotcz7vr?hid=b2lkPW9mZl82NDcxMDc5JmFpZD1hZmZfMjg3NzUxNCZ1aWQ9YmxfODY3NTQxMQ%3D%3D&amp;affid=aff_2877514" rel="sponsored noopener">Choose your package <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <p class="rvw-note">Individual customer reviews are not reproduced here. This page shows only the summary figures supplied by the advertiser, with no review filtering or breakdown. To read customer stories, visit the seller's order page.</p>
+  </div>
+</section>
+
 <!-- FAQ -->
-<section class="faq" id="faq" aria-labelledby="faq-h">
+<section class="faq" id="faq" data-dr-role="faq" aria-labelledby="faq-h">
   <div class="wrap">
     <h2 class="display sec-head" id="faq-h">Questions? <span class="accent">Answered.</span></h2>
 
@@ -624,7 +786,7 @@ html.js .rv.on{opacity:1;transform:none}
 </section>
 
 <!-- FINAL CTA -->
-<section class="final dark" aria-labelledby="final-h">
+<section class="final dark" data-dr-role="final-cta" aria-labelledby="final-h">
   <div class="wrap">
     <h2 class="display" id="final-h">Give your glow something to work with</h2>
     <p>Keep the routine you love. Add a gummy ritual that supports your skin from within, and feel good about the woman in the mirror.</p>

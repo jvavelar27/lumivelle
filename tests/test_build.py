@@ -10,7 +10,7 @@ class StaticBuildAcceptance(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         dist = ROOT / 'dist'
         self.assertEqual((dist / 'index.html').read_bytes(), (ROOT / 'index.html').read_bytes())
-        expected = {'index.html', 'privacy.html', 'terms.html', 'favicon.svg', 'assets'}
+        expected = {'index.html', 'privacy.html', 'terms.html', 'favicon.svg', 'campaign.js', 'assets'}
         self.assertEqual({f.name for f in dist.iterdir()}, expected)
         self.assertEqual({p.name for p in (dist / 'assets').iterdir()}, {p.name for p in (ROOT / 'assets').iterdir() if p.suffix in ('.webp', '.woff2')})
 
