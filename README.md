@@ -16,7 +16,8 @@ Import `jvavelar27/lumivelle`, framework Other. `vercel.json` sets `node scripts
 - `assets/` — optimized `.webp` images (product, hero, kit-2, kit-3). Product art must match the supplied label (`Affiliate Brief/images/cap-1-img1.png`, kept out of this repo).
 - `privacy.html`, `terms.html` — short affiliate-page notices; checkout terms belong to the merchant.
 - Original offer HTML variants, videos and outdated instructions were removed after adaptation. The user's brief remains outside the repository.
-- All raster assets are WebP. Two contextual images were generated with text-to-image-free; captions distinguish illustration from customers/results. Provider watermarks retained.
+- All raster assets are WebP. The visual refresh uses `agent-image-generation / Luxin`: Nano Banana Pro for the reference-conditioned product hero; GPT Image 2 for the mature-woman editorial portrait, gelatin still life and empty photography set. Kits composite the original product cutout onto that set. `asset-manifest.json` records all four generation jobs/assets and exact image sizes/hashes. No billing or paid top-up was used.
+- Versioned `*-editorial-v2.webp` filenames replace the previous generic backgrounds and contextual images, preventing stale image caches. Captions distinguish illustrations from customers/results. No provider watermark appears on the new generated imagery.
 - Browser QA passed at 320, 375, 390, 768, 1024, 1440 and 812px landscape, including gallery, keyboard FAQ and JavaScript-disabled content.
 
 ## Known source limitations

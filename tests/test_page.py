@@ -64,7 +64,7 @@ class LandingAcceptance(unittest.TestCase):
         canonical = [a.get('href') for tag, a in self.parser.tags if tag == 'link' and a.get('rel') == 'canonical']
         self.assertEqual(canonical, ['https://lumivelle-topaz.vercel.app/'])
         og = [a.get('content') for tag, a in self.parser.tags if tag == 'meta' and a.get('property') == 'og:image']
-        self.assertEqual(og, ['https://lumivelle-topaz.vercel.app/assets/og-lumivelle.webp'])
+        self.assertEqual(og, ['https://lumivelle-topaz.vercel.app/assets/og-lumivelle-v2.webp'])
     def test_subscription_disclosure(self):
         for term in ['subscription', '28 days', 'Wellness Club', 'cancel']:
             self.assertIn(term.lower(), self.html.lower())

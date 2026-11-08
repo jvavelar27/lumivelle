@@ -1,59 +1,119 @@
 {
+  "generation_version": 2,
+  "generator": "agent-image-generation / Luxin",
   "assets": [
     {
-      "file": "assets/hero.webp",
-      "width": 1000,
-      "height": 1100,
-      "bytes": 46772
+      "file": "assets/hero-editorial-v2.webp",
+      "width": 1200,
+      "height": 1345,
+      "bytes": 83402,
+      "sha256": "06aa41a98905f013033db19b76cfa6a9bc0ef7978975b4a6bac6c584c437a273"
     },
     {
-      "file": "assets/kit-2.webp",
+      "file": "assets/kit-1-editorial-v2.webp",
       "width": 1200,
       "height": 900,
-      "bytes": 50724
+      "bytes": 118498,
+      "sha256": "9df22380f26cc7ce01c15be58e0b0004bf04bcba9695cce363939561a501df4c"
     },
     {
-      "file": "assets/kit-3.webp",
+      "file": "assets/kit-2-editorial-v2.webp",
       "width": 1200,
       "height": 900,
-      "bytes": 70368
+      "bytes": 138340,
+      "sha256": "8f6998906604286df97a0c2b4ab8c2caeecc5c66e49d9032de8f3c9b3072fff5"
     },
     {
-      "file": "assets/lifestyle.webp",
-      "width": 849,
-      "height": 694,
-      "bytes": 32008
+      "file": "assets/kit-3-editorial-v2.webp",
+      "width": 1200,
+      "height": 900,
+      "bytes": 153408,
+      "sha256": "66c0e64d283c22aab6b5f022b59e6dbca525233d0636266f8ea4457b90ed0ef8"
     },
     {
-      "file": "assets/og-lumivelle.webp",
+      "file": "assets/lifestyle-editorial-v2.webp",
+      "width": 1536,
+      "height": 1024,
+      "bytes": 123630,
+      "sha256": "65f47bc08d9c9447f0c3c6bcfe51b84a8e472d1c38424630a59de5d74991ecde"
+    },
+    {
+      "file": "assets/og-lumivelle-v2.webp",
       "width": 1200,
       "height": 630,
-      "bytes": 37638
+      "bytes": 103650,
+      "sha256": "6cd3293333c54185bab2e969599eca1dcbb374a47f5484a2825458b4b5ae80bb"
     },
     {
-      "file": "assets/pink-gelatin.webp",
-      "width": 886,
-      "height": 665,
-      "bytes": 25684
+      "file": "assets/pink-gelatin-editorial-v2.webp",
+      "width": 1536,
+      "height": 1152,
+      "bytes": 124760,
+      "sha256": "27e9c0d1387a460037fc71a804161b8e687fece28dc409057531d855f036760a"
     },
     {
       "file": "assets/product-small.webp",
       "width": 279,
       "height": 530,
-      "bytes": 23148
+      "bytes": 23148,
+      "sha256": "c171825078fcc9e6c92cf6c459fc4d5a58f16f8b018a5b2b600e926995552c2b"
     },
     {
       "file": "assets/product.webp",
       "width": 589,
       "height": 1120,
-      "bytes": 67856
+      "bytes": 67856,
+      "sha256": "0bb089cc5c38f116cfdfa60b354547027ef07b9ec273324110651405c5fa1ed9"
+    }
+  ],
+  "generations": [
+    {
+      "purpose": "hero",
+      "model": "fal.nano-banana-pro-edit",
+      "job_id": "job_9b02c6eabd88",
+      "asset_id": "image_9266a39192af",
+      "hosted_original_url": "https://media.luxin.sh/a/image_9266a39192af.png",
+      "credits_consumed": 25,
+      "original_width": 1856,
+      "original_height": 2304
+    },
+    {
+      "purpose": "lifestyle",
+      "model": "openai.gpt-image-2",
+      "job_id": "job_5d200b91ea68",
+      "asset_id": "image_a79c7855623b",
+      "hosted_original_url": "https://media.luxin.sh/a/image_a79c7855623b.png",
+      "credits_consumed": 7,
+      "original_width": 1536,
+      "original_height": 1024
+    },
+    {
+      "purpose": "gelatin",
+      "model": "openai.gpt-image-2",
+      "job_id": "job_5e84a9e3b94e",
+      "asset_id": "image_932f5414e1c2",
+      "hosted_original_url": "https://media.luxin.sh/a/image_932f5414e1c2.png",
+      "credits_consumed": 9,
+      "original_width": 1536,
+      "original_height": 1152
+    },
+    {
+      "purpose": "backdrop",
+      "model": "openai.gpt-image-2",
+      "job_id": "job_a458b914ef32",
+      "asset_id": "image_23b44b1aa8d2",
+      "hosted_original_url": "https://media.luxin.sh/a/image_23b44b1aa8d2.png",
+      "credits_consumed": 7,
+      "original_width": 1536,
+      "original_height": 1024
     }
   ],
   "provenance": {
-    "product": "User-supplied LumiVelle pack shot from Affiliate Brief; original bottle not altered.",
-    "compositions": "Pillow compositing of original product, blush backgrounds, no performance/result imagery.",
-    "pink-gelatin.webp": "Generated using text-to-image-free / Pollinations endpoint. Illustration only, not actual product or ingredient quantities. Provider watermark retained.",
-    "lifestyle.webp": "Generated using text-to-image-free / Pollinations Sana. Fictional lifestyle illustration, NOT a testimonial, customer, before/after or result.",
-    "license_checks": "Pollinations official terms retrieved: 2026-10-10 version; terms state model licenses vary. Legacy image endpoint /models returned only sana. NVlabs/Sana official main LICENSE retrieved: Apache-2.0. No free-tier blanket noncommercial restriction stated in current provider terms. No legal warranty."
+    "product": "User-supplied original LumiVelle pack shot; product.webp and product-small.webp remain unchanged.",
+    "hero": "Nano Banana Pro edit conditioned on the actual supplied product. Framing crop removes visible studio light while preserving full package and pedestal.",
+    "kits": "Original product cutout composited onto GPT Image 2 generated photography set; package label is not regenerated.",
+    "lifestyle": "GPT Image 2 fictional mature-woman editorial portrait, not a customer, testimonial, before/after or result.",
+    "gelatin": "GPT Image 2 conceptual still life, not the actual supplement or an ingredient quantity.",
+    "payment": "Generated with signup preview credits only; no purchase, wallet payment, paid top-up or billing account setup."
   }
 }
