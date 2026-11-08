@@ -50,6 +50,12 @@ class DirectResponseStructure(unittest.TestCase):
         linear = [x/12.92 if x <= 0.04045 else ((x+0.055)/1.055)**2.4 for x in rgb]
         luminance = sum(a*b for a,b in zip(linear, [0.2126, 0.7152, 0.0722]))
         self.assertGreaterEqual(1.05 / (luminance + 0.05), 4.5)
+    def test_timer_row_is_visible_without_unrelated_inline_bootstrap(self):
+        css = re.search(r'\.timer-row\{([^}]+)\}', self.html)
+        self.assertIsNotNone(css)
+        self.assertIn('display:flex', css.group(1))
+        self.assertNotIn('html.js .timer-row', self.html)
+        self.assertIn('Enable JavaScript', self.html)
     def test_session_timer_is_not_presented_as_real_offer_expiry(self):
         self.assertTrue((ROOT / 'campaign.js').exists(), 'Session timer module must exist')
         self.assertIn('campaign.js', self.html)
