@@ -24,7 +24,8 @@ class PreviewSoundRestart(unittest.TestCase):
         self.assertEqual(button.get('type'),'button')
         self.assertEqual(button.get('aria-label'),'Restart video with sound')
         self.assertIn('Click for sound',html)
-        self.assertIn('video restarts from the beginning',html.lower())
+        self.assertNotIn('video restarts from the beginning',html.lower())
+        self.assertNotIn('vsl-start__helper',html)
         self.assertIn('data-vdelay="2834"',html)
 
 if __name__=='__main__':unittest.main()
