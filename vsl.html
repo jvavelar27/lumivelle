@@ -16,8 +16,9 @@
       href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;900&amp;family=Inter:wght@700&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/vsl/vsl-kit.css?v=wistia1" />
-    <link rel="stylesheet" href="/assets/vsl/style.css?v=wistia1" />
+    <link rel="stylesheet" href="/assets/vsl/vsl-kit.css?v=wistia2" />
+    <link rel="stylesheet" href="/assets/vsl/style.css?v=wistia2" />
+    <noscript><style>.vsl-start { display: none; }</style></noscript>
     <script src="https://fast.wistia.com/player.js" async></script>
     <script src="https://fast.wistia.com/embed/dr4rq15xr1.js" async type="module"></script>
     <style>
@@ -28,7 +29,7 @@
         padding-top: 123.06%;
       }
     </style>
-    <script src="/assets/vsl/vsl-player.js?v=wistia1" defer></script>
+    <script src="/assets/vsl/vsl-player.js?v=wistia2" defer></script>
   </head>
 
   <body>
@@ -47,14 +48,19 @@
           <wistia-player
             media-id="dr4rq15xr1"
             aspect="0.8126410835214447"
-            autoplay
-            muted
-            silent-autoplay="allow"
+            autoplay="false"
+            muted="false"
+            silent-autoplay="false"
+            big-play-button="false"
             play-bar-control="false"
             play-pause-control="true"
             volume-control="true"
             playback-rate-control="false"
           ></wistia-player>
+          <div class="vsl-start" id="start-overlay">
+            <button class="vsl-start__button" id="start-video" type="button" aria-label="Play video with sound" disabled>Play video with sound</button>
+            <p class="vsl-start__note" id="start-note">Loading video…</p>
+          </div>
         </div>
         <p class="vsl-status" id="player-status" role="status" aria-live="polite" hidden></p>
         <noscript><p class="vsl-status">JavaScript is required to unlock the order button on this page. Please enable JavaScript and reload.</p></noscript>

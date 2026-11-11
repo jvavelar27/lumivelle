@@ -55,12 +55,29 @@ class FakeWistia extends El {
     this.duration = 0;
     this.readyState = 0;
     this.paused = true;
-    this.muted = true;
-    this.volume = 1;
+    this._muted = true;
+    this._volume = 1;
+    this.log = []; // ordered record of writes and play() calls made by the page
+    this.playMode = 'resolve'; // 'resolve' | 'reject' | 'throw' | 'pending' | 'resolve-silent'
   }
+  get muted() { return this._muted; }
+  set muted(v) { this._muted = v; this.log.push('muted=' + v); }
+  get volume() { return this._volume; }
+  set volume(v) { this._volume = v; this.log.push('volume=' + v); }
   emit(type, detail) { (this.listeners[type] || []).forEach((f) => f({ type, detail })); }
   // test helper: the component finishes defining and metadata is initialised
-  makeReady(time = 0) { this.duration = 3908.13; this.readyState = 4; this.currentTime = time; this.play = () => {}; this.pause = () => {}; }
+  makeReady(time = 0) {
+    this.duration = 3908.13; this.readyState = 4; this.currentTime = time;
+    this.play = () => {
+      this.log.push('play');
+      if (this.playMode === 'throw') throw new Error('double: play threw');
+      if (this.playMode === 'reject') return Promise.reject(new Error('double: play rejected'));
+      if (this.playMode === 'pending') return new Promise(() => {});
+      if (this.playMode !== 'resolve-silent') this.paused = false;
+      return Promise.resolve();
+    };
+    this.pause = () => {};
+  }
 }
 
 // defined: 'resolve' | 'late' | 'never' | 'reject' | 'missing' (no customElements at all)
@@ -74,6 +91,11 @@ export function loadPage({ defined = 'resolve', alreadyReady = false, startTime 
   const status = new El('p', { id: 'player-status' });
   status.hidden = true;
   const body = new El('body');
+  const startButton = new El('button', { id: 'start-video', type: 'button' });
+  startButton.disabled = true;
+  const startOverlay = new El('div', { id: 'start-overlay' });
+  const startNote = new El('p', { id: 'start-note' });
+  startNote.textContent = 'Loading video…';
   offer.style.display = 'none';
   offer.querySelector = (s) => (s === '[data-offer-notice]' ? notice : null);
   const docListeners = {};
@@ -81,7 +103,7 @@ export function loadPage({ defined = 'resolve', alreadyReady = false, startTime 
     readyState: 'complete',
     body,
     documentElement: new El('html'),
-    getElementById: (id) => ({ video, 'player-status': status }[id] || null),
+    getElementById: (id) => ({ video, 'player-status': status, 'start-video': startButton, 'start-overlay': startOverlay, 'start-note': startNote }[id] || null),
     querySelector: (s) => (s === 'wistia-player' || s === '#video wistia-player' ? player : null),
     querySelectorAll: (s) => (s === '.esconder' ? [offer] : s === 'a.buylink' || s === '.buylink' ? [buy] : []),
     addEventListener: (t, f) => (docListeners[t] ||= []).push(f),
@@ -141,7 +163,9 @@ export function loadPage({ defined = 'resolve', alreadyReady = false, startTime 
     }
   };
   return {
-    win, document, body, video, offer, notice, buy, status, store, error, advance, docListeners, player,
+    win, document, body, video, offer, notice, buy, status, store, error, advance, docListeners, player, startButton, startOverlay, startNote,
+    // a physical click/tap/Enter arrives as a trusted click; isTrusted:false models script-made events
+    click: (isTrusted = true) => (startButton.listeners.click || []).forEach((f) => f({ type: 'click', isTrusted, preventDefault() {} })),
     define: () => defineNow(),
     // tests move the playhead and then fire the event, as the component would
     at: (seconds, type = 'time-update', detail) => { player.currentTime = seconds; player.emit(type, detail); },

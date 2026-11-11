@@ -11,7 +11,12 @@
         player.currentTime read on time-update / seeked / api-ready, or from the
         resume position of an already-ready player. Event payloads are never
         trusted; no window message listener exists.
-     2. stage — real sound on (player.muted === false and volume > 0): headline
+     2. start — the video never plays by itself: a visible button starts it with
+        sound. The trusted click handler sets muted=false, volume=1 and calls
+        play() synchronously (no await first, or the gesture is lost). The overlay
+        hides only once playback really has sound; a failed play() leaves it
+        retryable with a clear message.
+     2b. stage — real sound on (player.muted === false and volume > 0): headline
         shrinks, player grows and pins until the pitch (Escape steps out)
      3. reveal — body.is-revealed, announcement, "fit" scroll
      4. player failure / slow load — a visible status with a reload link only
@@ -21,6 +26,9 @@
 
   var video = document.getElementById("video");
   var status = document.getElementById("player-status");
+  var startOverlay = document.getElementById("start-overlay");
+  var startButton = document.getElementById("start-video");
+  var startNote = document.getElementById("start-note");
   var offers = Array.prototype.slice.call(document.querySelectorAll(".esconder"));
 
   var UNLOCK_SECONDS = video ? Number(video.getAttribute("data-vdelay")) || 0 : 0;
@@ -191,12 +199,73 @@
     if (UNLOCK_SECONDS > 0 && seconds >= UNLOCK_SECONDS) reveal(false);
   };
 
+  /* ---- Start with sound ---------------------------------------------------- */
+
+  var soundOn = function (player) {
+    return player.muted === false && typeof player.volume === "number" && player.volume > 0;
+  };
+
+  var setStartNote = function (text) {
+    if (startNote) startNote.textContent = text;
+  };
+
+  var enableStart = function () {
+    if (!startButton) return;
+    startButton.disabled = false;
+    setStartNote("");
+  };
+
+  var hideOverlay = function () {
+    if (startOverlay) startOverlay.hidden = true;
+    hideStatus();
+  };
+
+  /* Playing with sound, however it began (our button or the native controls),
+     is a started video. Muted playback is not: the overlay stays. */
+  var maybeStarted = function (player) {
+    if (soundOn(player) && player.paused !== true) hideOverlay();
+  };
+
+  var startFailed = function () {
+    if (startButton) startButton.disabled = false;
+    setStartNote("");
+    showStatus("The video could not start. Tap Play video with sound to try again.", true);
+  };
+
+  var bindStart = function (player) {
+    if (!startButton) return;
+    startButton.addEventListener("click", function (e) {
+      /* only a real user gesture starts the video, and never a disabled button */
+      if (!e || e.isTrusted !== true || startButton.disabled) return;
+      var result;
+      try {
+        /* all in this same handler, synchronously: awaiting first loses the gesture */
+        player.muted = false;
+        player.volume = 1;
+        result = player.play();
+      } catch (err) {
+        return startFailed();
+      }
+      startButton.disabled = true;
+      setStartNote("Starting video…");
+      Promise.resolve(result).then(
+        function () {
+          if (startButton) startButton.disabled = false;
+          setStartNote("");
+          maybeStarted(player);
+        },
+        startFailed
+      );
+    });
+  };
+
   /* ---- Player status ------------------------------------------------------ */
 
-  var showStatus = function (message) {
+  var showStatus = function (message, retryable) {
     if (!status) return;
-    status.innerHTML = message + ' <a href="/vsl">Reload this page</a> to try again.';
+    status.innerHTML = retryable ? message : message + ' <a href="/vsl">Reload this page</a> to try again.';
     status.hidden = false;
+    if (!retryable) setStartNote("");
   };
 
   var hideStatus = function () {
@@ -222,6 +291,7 @@
       ready = true;
       window.clearTimeout(timeout);
       hideStatus();
+      enableStart();
       /* resume: the viewer may already be past the pitch */
       handlePosition(player.currentTime);
     };
@@ -245,10 +315,13 @@
     });
     player.addEventListener("play", function () {
       checkSound(player);
+      maybeStarted(player);
     });
     player.addEventListener("volume-change", function () {
       checkSound(player);
+      maybeStarted(player);
     });
+    bindStart(player);
 
     timeout = window.setTimeout(function () {
       if (!ready) showStatus("The video player is taking too long to load.");

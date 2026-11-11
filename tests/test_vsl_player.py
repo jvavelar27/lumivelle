@@ -34,7 +34,10 @@ class MarkupAndCaching(unittest.TestCase):
         self.assertIn('play-bar-control="false"', tag)
         self.assertIn('play-pause-control="true"', tag)
         self.assertIn('volume-control="true"', tag)
-        self.assertIn('silent-autoplay="allow"', tag)
+        self.assertIn('autoplay="false"', tag)
+        self.assertIn('muted="false"', tag)
+        self.assertIn('silent-autoplay="false"', tag)
+        self.assertIn('big-play-button="false"', tag)
         self.assertIn('playback-rate-control="false"', tag)
         self.assertNotIn('settings-control="false"', tag)
         self.assertNotRegex(tag, r'seo|branding|logo')
@@ -42,7 +45,7 @@ class MarkupAndCaching(unittest.TestCase):
         refs = re.findall(r'(?:src|href)="(/assets/vsl/(?:vsl-player\.js|vsl-kit\.css|style\.css)[^"]*)"', self.html)
         self.assertEqual(len(refs), 3)
         for ref in refs:
-            self.assertRegex(ref, r'\?v=wistia')
+            self.assertRegex(ref, r'\?v=wistia2')
     def test_no_double_height_on_undefined_player(self):
         css = (ROOT / 'assets/vsl/vsl-kit.css').read_text(encoding='utf-8') + (ROOT / 'assets/vsl/style.css').read_text(encoding='utf-8')
         self.assertNotIn('540 / 666', css)
@@ -62,6 +65,105 @@ class MarkupAndCaching(unittest.TestCase):
     def test_no_js_notice_explains_javascript_is_needed(self):
         self.assertIn('<noscript>', self.html)
         self.assertIn('JavaScript is required', self.html)
+
+class StartWithSound(unittest.TestCase):
+    def test_overlay_markup_inside_video_box_with_accessible_button(self):
+        html = (ROOT / 'vsl.html').read_text(encoding='utf-8')
+        box = html[html.index('id="video"'):html.index('id="player-status"')]
+        self.assertIn('id="start-overlay"', box)
+        button = re.search(r'<button\b[^>]*id="start-video"[^>]*>', box).group(0)
+        self.assertIn('type="button"', button)
+        self.assertIn('aria-label="Play video with sound"', button)
+        self.assertIn('disabled', button)
+        css = (ROOT / 'assets/vsl/style.css').read_text(encoding='utf-8')
+        self.assertRegex(css, r'\.vsl-start\[hidden\]\s*\{[^}]*display:\s*none')
+        self.assertRegex(css, r'\.vsl-start__button\s*\{[^}]*min-height:\s*(4[4-9]|[5-9]\d)px')
+        self.assertIn('.vsl-start__button:focus-visible', css)
+        self.assertNotIn(':hover', css[css.index('.vsl-start'):css.index('/* ---- Player status')])
+    def test_button_is_disabled_until_the_player_is_ready(self):
+        got = run("""
+const p=loadPage({defined:'late'}); await flush();
+const before=p.startButton.disabled;
+p.player.makeReady(0); p.define(); await flush(); await flush();
+console.log(JSON.stringify({before,after:p.startButton.disabled,plays:p.player.log.filter((x)=>x==='play').length}));
+""")
+        self.assertTrue(got['before'])
+        self.assertFalse(got['after'])
+        self.assertEqual(got['plays'], 0)
+    def test_nothing_plays_without_a_user_action(self):
+        got = run("""
+const p=loadPage({defined:'late'}); await flush();
+p.player.makeReady(0); p.define(); p.player.emit('api-ready'); await flush(); await flush();
+p.advance(10*3600*1000); await flush();
+p.player.emit('volume-change'); p.player.emit('time-update'); await flush();
+console.log(JSON.stringify({log:p.player.log,overlayHidden:p.startOverlay.hidden}));
+""")
+        self.assertEqual(got['log'], [])
+        self.assertFalse(got['overlayHidden'])
+    def test_trusted_click_unmutes_sets_volume_and_plays_synchronously_in_order(self):
+        got = run("""
+const p=loadPage({alreadyReady:true}); await flush();
+p.click(true);
+const syncLog=[...p.player.log];
+await flush();
+console.log(JSON.stringify({syncLog,hidden:p.startOverlay.hidden}));
+""")
+        self.assertEqual(got['syncLog'], ['muted=false', 'volume=1', 'play'])
+        self.assertTrue(got['hidden'])
+    def test_untrusted_or_disabled_clicks_do_nothing(self):
+        got = run("""
+const a=loadPage({alreadyReady:true}); await flush(); a.click(false);
+const b=loadPage({defined:'never'}); await flush(); b.click(true);
+console.log(JSON.stringify({untrusted:a.player.log,notReady:b.player.log}));
+""")
+        self.assertEqual(got['untrusted'], [])
+        self.assertEqual(got['notReady'], [])
+    def test_rejected_or_thrown_play_keeps_overlay_and_allows_retry(self):
+        got = run("""
+const out={};
+for (const mode of ['reject','throw']) {
+  const p=loadPage({alreadyReady:true}); await flush(); p.player.playMode=mode;
+  p.click(true); await flush();
+  const failed={hidden:p.startOverlay.hidden,disabled:p.startButton.disabled,status:!p.status.hidden,text:p.status.textContent+p.status.innerHTML};
+  p.player.playMode='resolve'; p.click(true); await flush();
+  out[mode]={failed,retryPlays:p.player.log.filter((x)=>x==='play').length,hiddenAfterRetry:p.startOverlay.hidden};
+}
+console.log(JSON.stringify(out));
+""")
+        for mode in ('reject', 'throw'):
+            r = got[mode]
+            self.assertFalse(r['failed']['hidden'])
+            self.assertFalse(r['failed']['disabled'])
+            self.assertTrue(r['failed']['status'])
+            self.assertIn('try again', r['failed']['text'].lower())
+            self.assertEqual(r['retryPlays'], 2)
+            self.assertTrue(r['hiddenAfterRetry'])
+    def test_overlay_stays_until_playback_actually_has_sound(self):
+        got = run("""
+const p=loadPage({alreadyReady:true}); await flush(); p.player.playMode='resolve-silent';
+p.click(true); await flush();
+const stuck={hidden:p.startOverlay.hidden,disabled:p.startButton.disabled};
+p.player.paused=false; p.player.emit('play'); await flush();
+console.log(JSON.stringify({stuck,afterPlayEvent:p.startOverlay.hidden}));
+""")
+        self.assertFalse(got['stuck']['hidden'])
+        self.assertFalse(got['stuck']['disabled'])
+        self.assertTrue(got['afterPlayEvent'])
+    def test_native_play_with_real_sound_counts_as_started_but_muted_play_does_not(self):
+        got = run("""
+const a=loadPage({alreadyReady:true}); await flush();
+a.player.paused=false; a.player.emit('play'); await flush(); const mutedPlay=a.startOverlay.hidden;
+a.player._muted=false; a.player.emit('volume-change'); await flush();
+const b=loadPage({alreadyReady:true}); await flush();
+b.player._muted=false; b.player.paused=false; b.player.emit('play'); await flush();
+console.log(JSON.stringify({mutedPlay,afterUnmute:a.startOverlay.hidden,nativeSound:b.startOverlay.hidden}));
+""")
+        self.assertFalse(got['mutedPlay'])
+        self.assertTrue(got['afterUnmute'])
+        self.assertTrue(got['nativeSound'])
+    def test_click_does_not_unlock_the_offer(self):
+        got = run("const p=loadPage({alreadyReady:true}); await flush(); p.click(true); await flush(); console.log(JSON.stringify({r:p.revealed()}));")
+        self.assertFalse(got['r'])
 
 class UnlockAtPlaybackSecond(unittest.TestCase):
     def test_stays_hidden_until_current_time_reaches_2834(self):
