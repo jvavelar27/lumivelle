@@ -16,8 +16,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;900&amp;family=Inter:wght@700&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/vsl/vsl-kit.css?v=wistia2" />
-    <link rel="stylesheet" href="/assets/vsl/style.css?v=wistia2" />
+    <link rel="stylesheet" href="/assets/vsl/vsl-kit.css?v=wistia3" />
+    <link rel="stylesheet" href="/assets/vsl/style.css?v=wistia3" />
     <noscript><style>.vsl-start { display: none; }</style></noscript>
     <script src="https://fast.wistia.com/player.js" async></script>
     <script src="https://fast.wistia.com/embed/dr4rq15xr1.js" async type="module"></script>
@@ -29,7 +29,7 @@
         padding-top: 123.06%;
       }
     </style>
-    <script src="/assets/vsl/vsl-player.js?v=wistia2" defer></script>
+    <script src="/assets/vsl/vsl-player.js?v=wistia3" defer></script>
   </head>
 
   <body>
@@ -48,9 +48,9 @@
           <wistia-player
             media-id="dr4rq15xr1"
             aspect="0.8126410835214447"
-            autoplay="false"
-            muted="false"
-            silent-autoplay="false"
+            autoplay="true"
+            muted="true"
+            silent-autoplay="true"
             big-play-button="false"
             play-bar-control="false"
             play-pause-control="true"
@@ -58,7 +58,8 @@
             playback-rate-control="false"
           ></wistia-player>
           <div class="vsl-start" id="start-overlay">
-            <button class="vsl-start__button" id="start-video" type="button" aria-label="Play video with sound" disabled>Play video with sound</button>
+            <button class="vsl-start__button" id="start-video" type="button" aria-label="Restart video with sound" disabled>Click for sound</button>
+            <p class="vsl-start__helper">Video restarts from the beginning.</p>
             <p class="vsl-start__note" id="start-note">Loading video…</p>
           </div>
         </div>

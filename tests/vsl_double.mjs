@@ -51,23 +51,34 @@ class El {
 class FakeWistia extends El {
   constructor() {
     super('wistia-player', { 'media-id': 'dr4rq15xr1' });
-    this.currentTime = 0;
+    this._t = 0;
     this.duration = 0;
     this.readyState = 0;
     this.paused = true;
     this._muted = true;
     this._volume = 1;
-    this.log = []; // ordered record of writes and play() calls made by the page
+    this._silentAutoplay = true;
+    this.log = []; // ordered record of writes and calls made BY THE PAGE
     this.playMode = 'resolve'; // 'resolve' | 'reject' | 'throw' | 'pending' | 'resolve-silent'
+    this.seekMode = 'instant'; // 'instant' | 'stale' (position keeps its old value until settleSeek())
+    this._pendingSeek = null;
   }
+  get currentTime() { return this._t; }
+  set currentTime(v) {
+    this.log.push('currentTime=' + v);
+    if (this.seekMode === 'stale') this._pendingSeek = v; else this._t = v;
+  }
+  settleSeek() { if (this._pendingSeek !== null) { this._t = this._pendingSeek; this._pendingSeek = null; } }
   get muted() { return this._muted; }
   set muted(v) { this._muted = v; this.log.push('muted=' + v); }
   get volume() { return this._volume; }
   set volume(v) { this._volume = v; this.log.push('volume=' + v); }
+  get silentAutoplay() { return this._silentAutoplay; }
+  set silentAutoplay(v) { this._silentAutoplay = v; this.log.push('silentAutoplay=' + v); }
   emit(type, detail) { (this.listeners[type] || []).forEach((f) => f({ type, detail })); }
   // test helper: the component finishes defining and metadata is initialised
   makeReady(time = 0) {
-    this.duration = 3908.13; this.readyState = 4; this.currentTime = time;
+    this.duration = 3908.13; this.readyState = 4; this._t = time;
     this.play = () => {
       this.log.push('play');
       if (this.playMode === 'throw') throw new Error('double: play threw');
@@ -76,7 +87,7 @@ class FakeWistia extends El {
       if (this.playMode !== 'resolve-silent') this.paused = false;
       return Promise.resolve();
     };
-    this.pause = () => {};
+    this.pause = () => { this.log.push('pause'); this.paused = true; };
   }
 }
 
@@ -165,10 +176,10 @@ export function loadPage({ defined = 'resolve', alreadyReady = false, startTime 
   return {
     win, document, body, video, offer, notice, buy, status, store, error, advance, docListeners, player, startButton, startOverlay, startNote,
     // a physical click/tap/Enter arrives as a trusted click; isTrusted:false models script-made events
-    click: (isTrusted = true) => (startButton.listeners.click || []).forEach((f) => f({ type: 'click', isTrusted, preventDefault() {} })),
+    click: (isTrusted = true, extra = {}) => (startButton.listeners.click || []).forEach((f) => f({ type: 'click', isTrusted, preventDefault() {}, ...extra })),
     define: () => defineNow(),
     // tests move the playhead and then fire the event, as the component would
-    at: (seconds, type = 'time-update', detail) => { player.currentTime = seconds; player.emit(type, detail); },
+    at: (seconds, type = 'time-update', detail) => { player._t = seconds; player.emit(type, detail); },
     revealed: () => offer.style.display === 'block' && body.classList.contains('is-revealed'),
   };
 }

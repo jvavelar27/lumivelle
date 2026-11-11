@@ -220,7 +220,7 @@ body.is-stage .vsl-video__box {
   font-weight: 700;
 }
 
-/* ---- Start with sound (manual start; the video never autoplays silently) -- */
+/* ---- Click for sound (silent preview behind it; click restarts with sound) -- */
 
 .vsl-start {
   position: absolute;
@@ -268,6 +268,7 @@ body.is-stage .vsl-video__box {
   cursor: progress;
 }
 
+.vsl-start__helper,
 .vsl-start__note {
   color: #fff;
   font-size: 15px;

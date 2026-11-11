@@ -4,20 +4,25 @@
    core Wistia Aurora <wistia-player> component (direct properties and events,
    not the legacy queue-based API):
 
-     1. the order button opens when the viewer's PLAYBACK reaches the pitch
-        second (data-vdelay on #video = 2834 = 47:14). Never wall-clock time,
-        never a query-string shortcut, never as an error or timeout fallback:
-        pausing stops progress toward it, and the button only appears from
-        player.currentTime read on time-update / seeked / api-ready, or from the
-        resume position of an already-ready player. Event payloads are never
-        trusted; no window message listener exists.
-     2. start — the video never plays by itself: a visible button starts it with
-        sound. The trusted click handler sets muted=false, volume=1 and calls
-        play() synchronously (no await first, or the gesture is lost). The overlay
-        hides only once playback really has sound; a failed play() leaves it
+     1. the order button opens when the viewer's LISTENING session reaches the
+        pitch second (data-vdelay on #video = 2834 = 47:14). Never wall-clock
+        time, never a query-string shortcut, never as an error or timeout
+        fallback, and NEVER from the muted silent preview that autoplays behind
+        the overlay (even if the preview is already past 2834). Only
+        player.currentTime read on time-update / seeked after the listening
+        session has begun counts. Event payloads are never trusted; no window
+        message listener exists.
+     2. start — "Click for sound": a trusted click/tap/Enter synchronously
+        pauses the preview, turns silent-autoplay off, seeks to 0, sets
+        muted=false and volume=1 and calls play() in the same handler (awaiting
+        first would lose the gesture). The session only becomes "listening" —
+        and the overlay only hides — once the position is back near zero and
+        playback really has sound; callbacks that still carry the preview's old
+        position during the seek are ignored. A failed play() leaves the button
         retryable with a clear message.
-     2b. stage — real sound on (player.muted === false and volume > 0): headline
-        shrinks, player grows and pins until the pitch (Escape steps out)
+     2b. stage — real sound on (player.muted === false and volume > 0) in the
+        listening session: headline shrinks, player grows and pins until the
+        pitch (Escape steps out)
      3. reveal — body.is-revealed, announcement, "fit" scroll
      4. player failure / slow load — a visible status with a reload link only
      5. tracking params carried onto the checkout link without touching hid/affid */
@@ -33,7 +38,9 @@
 
   var UNLOCK_SECONDS = video ? Number(video.getAttribute("data-vdelay")) || 0 : 0;
   var VIDEO_ID = video ? video.getAttribute("data-video-id") || "" : "";
-  var STORAGE_KEY = "lumivelle-vsl-unlock:" + VIDEO_ID + ":" + UNLOCK_SECONDS;
+  /* versioned for the listening flow: legacy preview-era keys cannot open it */
+  var STORAGE_KEY = "lumivelle-vsl-listen-unlock:v2:" + VIDEO_ID + ":" + UNLOCK_SECONDS;
+  var RESTART_NEAR_ZERO = 5; /* seconds: how close to the start a restart must be */
   var PLAYER_TAG = "wistia-player";
   var READY_TIMEOUT_MS = 20000;
 
@@ -111,6 +118,10 @@
     }
   };
 
+  /* "preview": muted silent autoplay (earns nothing); "activating": the restart
+     with sound is in flight; "listening": restarted, with sound, near zero. */
+  var phase = "preview";
+
   /* ---- Stage -------------------------------------------------------------- */
 
   var revealed = false;
@@ -140,9 +151,9 @@
   };
 
   /* Sound counts as on only when the player says so: muted is exactly false
-     and volume is above zero. Anything else keeps the page out of the stage. */
+     and volume is above zero, and only the listening session can stage. */
   var checkSound = function (player) {
-    if (player.muted === false && typeof player.volume === "number" && player.volume > 0) enterStage();
+    if (phase === "listening" && player.muted === false && typeof player.volume === "number" && player.volume > 0) enterStage();
   };
 
   if (video && video.hasAttribute("data-stage")) {
@@ -195,11 +206,14 @@
   /* A position unlocks the offer only if it is a real, finite number of
      seconds at or past the pitch second. */
   var handlePosition = function (seconds) {
+    if (phase !== "listening") return; /* the silent preview and a restart in flight earn nothing */
     if (typeof seconds !== "number" || !isFinite(seconds)) return;
     if (UNLOCK_SECONDS > 0 && seconds >= UNLOCK_SECONDS) reveal(false);
   };
 
-  /* ---- Start with sound ---------------------------------------------------- */
+  /* ---- Click for sound ---------------------------------------------------- */
+
+  var inFlight = false;
 
   var soundOn = function (player) {
     return player.muted === false && typeof player.volume === "number" && player.volume > 0;
@@ -220,26 +234,40 @@
     hideStatus();
   };
 
-  /* Playing with sound, however it began (our button or the native controls),
-     is a started video. Muted playback is not: the overlay stays. */
-  var maybeStarted = function (player) {
-    if (soundOn(player) && player.paused !== true) hideOverlay();
+  /* The restart counts as done only when the position is back near zero and
+     playback really is running with sound. Anything else (an old preview
+     position still arriving, silent playback, paused) does not. */
+  var confirmRestart = function (player) {
+    if (phase !== "activating") return;
+    var t = player.currentTime;
+    if (typeof t !== "number" || !isFinite(t) || t < 0 || t > RESTART_NEAR_ZERO) return;
+    if (!soundOn(player) || player.paused === true) return;
+    phase = "listening";
+    hideOverlay();
+    checkSound(player);
   };
 
   var startFailed = function () {
+    phase = "preview";
+    inFlight = false;
     if (startButton) startButton.disabled = false;
     setStartNote("");
-    showStatus("The video could not start. Tap Play video with sound to try again.", true);
+    showStatus("The video could not restart. Click for sound to try again.", true);
   };
 
   var bindStart = function (player) {
     if (!startButton) return;
     startButton.addEventListener("click", function (e) {
-      /* only a real user gesture starts the video, and never a disabled button */
-      if (!e || e.isTrusted !== true || startButton.disabled) return;
+      /* only a real user gesture, never a disabled button, never twice at once */
+      if (!e || e.isTrusted !== true || startButton.disabled || inFlight) return;
+      inFlight = true;
+      phase = "activating"; /* from now on old-position callbacks are ignored */
       var result;
       try {
         /* all in this same handler, synchronously: awaiting first loses the gesture */
+        if (typeof player.pause === "function") player.pause();
+        if (player.silentAutoplay !== false) player.silentAutoplay = false;
+        player.currentTime = 0;
         player.muted = false;
         player.volume = 1;
         result = player.play();
@@ -247,12 +275,13 @@
         return startFailed();
       }
       startButton.disabled = true;
-      setStartNote("Starting video…");
+      setStartNote("Restarting video…");
       Promise.resolve(result).then(
         function () {
+          inFlight = false;
           if (startButton) startButton.disabled = false;
           setStartNote("");
-          maybeStarted(player);
+          confirmRestart(player);
         },
         startFailed
       );
@@ -292,8 +321,6 @@
       window.clearTimeout(timeout);
       hideStatus();
       enableStart();
-      /* resume: the viewer may already be past the pitch */
-      handlePosition(player.currentTime);
     };
 
     /* There is no apiReady flag: a finite duration above zero (and usable
@@ -308,18 +335,20 @@
        receive listeners, and the component fires them once it is upgraded. */
     player.addEventListener("api-ready", markReady);
     player.addEventListener("time-update", function () {
+      confirmRestart(player);
       handlePosition(player.currentTime);
     });
     player.addEventListener("seeked", function () {
+      confirmRestart(player);
       handlePosition(player.currentTime);
     });
     player.addEventListener("play", function () {
+      confirmRestart(player);
       checkSound(player);
-      maybeStarted(player);
     });
     player.addEventListener("volume-change", function () {
+      confirmRestart(player);
       checkSound(player);
-      maybeStarted(player);
     });
     bindStart(player);
 
